@@ -35,7 +35,7 @@ resource "aws_internet_gateway" "gw" {
 resource "aws_route_table" "route_table" {
   vpc_id = aws_vpc.main_vpc.id
   route {
-    cidr_block = "0.0.0.0/0" # aws_vpc.main_vpc.cidr_block
+    cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.gw.id
   }
   tags = {
@@ -153,12 +153,21 @@ resource "aws_efs_file_system" "efs_jenkins_home" {
     Owner        = "Maxim Manovitskiy"
   }
 }
-resource "aws_efs_mount_target" "jenkins_efs_mount" {
+resource "aws_efs_mount_target" "jenkins_efs_mount_0" {
   file_system_id  = aws_efs_file_system.efs_jenkins_home.id
   subnet_id       = aws_subnet.elb_subnet.*.id[0]
   security_groups = [aws_security_group.efs_sg.id]
 }
-
+resource "aws_efs_mount_target" "jenkins_efs_mount_1" {
+  file_system_id  = aws_efs_file_system.efs_jenkins_home.id
+  subnet_id       = aws_subnet.elb_subnet.*.id[1]
+  security_groups = [aws_security_group.efs_sg.id]
+}
+resource "aws_efs_mount_target" "jenkins_efs_mount_2" {
+  file_system_id  = aws_efs_file_system.efs_jenkins_home.id
+  subnet_id       = aws_subnet.elb_subnet.*.id[2]
+  security_groups = [aws_security_group.efs_sg.id]
+}
 resource "aws_security_group" "efs_sg" {
   name   = "efs_sg"
   vpc_id = aws_vpc.main_vpc.id
@@ -182,8 +191,18 @@ resource "aws_security_group" "efs_sg" {
 }
 
 data "template_file" "init" {
-  template = file("jenkins.sh")
+  template = file("./jenkins.sh")
   vars = {
     efs_address = aws_efs_file_system.efs_jenkins_home.dns_name
+  }
+}
+
+data "template_cloudinit_config" "config" {
+  gzip          = false
+  base64_encode = false
+  part {
+    filename     = "./jenkins.sh"
+    content_type = "text/x-shellscript"
+    content      = data.template_file.init.rendered
   }
 }
