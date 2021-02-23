@@ -81,16 +81,7 @@ resource "aws_security_group" "jenkins_group" {
     from_port       = 0
     to_port         = 0
     protocol        = "-1"
-    security_groups = [aws_elb.jenkins-elb.source_security_group_id]
-  }
-  dynamic "ingress" {
-    for_each = var.instance_ports
-    content {
-      from_port   = ingress.value
-      to_port     = ingress.value
-      protocol    = "tcp"
-      cidr_blocks = var.access_ip
-    }
+    security_groups = [aws_security_group.alb_sg.id, aws_security_group.elb_sg.id]
   }
   egress {
     from_port   = 0
@@ -111,7 +102,7 @@ resource "aws_launch_configuration" "jenkins_LC" {
   instance_type   = var.instance_type
   key_name        = aws_key_pair.jenkins_key.id
   security_groups = [aws_security_group.jenkins_group.id]
-  user_data       = file("jenkins.sh")
+  user_data       = data.template_cloudinit_config.config.rendered
 }
 
 resource "aws_autoscaling_group" "jenkins_autosc_group" {
@@ -121,10 +112,12 @@ resource "aws_autoscaling_group" "jenkins_autosc_group" {
   max_size             = 1
   vpc_zone_identifier  = aws_subnet.elb_subnet.*.id
   load_balancers       = [aws_elb.jenkins-elb.id]
+  target_group_arns    = [aws_lb_target_group.lb_target.arn]
   health_check_type    = "EC2"
   lifecycle {
     create_before_destroy = true
   }
+  depends_on = [aws_efs_file_system.efs_jenkins_home]
   tags = [
     {
       key                 = "ResourceName"

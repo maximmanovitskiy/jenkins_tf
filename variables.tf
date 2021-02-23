@@ -11,13 +11,13 @@ variable "elb_subnet_cidr_block" {
 variable "instance_type" {
   default = "t2.micro"
 }
-variable "instance_ports" {
-  type    = list(any)
-  default = ["22"]
-}
-variable "lb_ports" {
+variable "alb_ports" {
   type    = list(any)
   default = ["80"]
+}
+variable "elb_ports" {
+  type    = list(any)
+  default = ["2222"]
 }
 variable "access_ip" {
   type    = list(any)

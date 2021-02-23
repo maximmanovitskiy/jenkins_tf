@@ -6,9 +6,6 @@ sudo mount \
     -t nfs4 \
     -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport \
     ${efs_address}:/ /var/lib/jenkins
-
-sudo echo "${efs_address}:/ /var/lib/jenkins nfs defaults,vers=4.1 0 0" >> /etc/fstab
-
 service jenkins status
 if [ $? != 0 ]; then
   wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | sudo apt-key add -
