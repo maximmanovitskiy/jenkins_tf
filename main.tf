@@ -117,7 +117,8 @@ resource "aws_autoscaling_group" "jenkins_autosc_group" {
   lifecycle {
     create_before_destroy = true
   }
-  depends_on = [aws_efs_file_system.efs_jenkins_home]
+  depends_on = [aws_efs_file_system.efs_jenkins_home, aws_efs_mount_target.jenkins_efs_mount_0,
+  aws_efs_mount_target.jenkins_efs_mount_1, aws_efs_mount_target.jenkins_efs_mount_2]
   tags = [
     {
       key                 = "ResourceName"
