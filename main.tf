@@ -59,7 +59,7 @@ resource "aws_subnet" "elb_subnet" {
   map_public_ip_on_launch = true
   tags = {
     Name         = "ELB subnet"
-    ResourceName = "App_load_balancer"
+    ResourceName = "VPC_subnet"
     Owner        = "Maxim Manovitskiy"
   }
 }
@@ -183,11 +183,22 @@ resource "aws_security_group" "efs_sg" {
     Owner        = "Maxim Manovitskiy"
   }
 }
-
+resource "aws_ecr_repository" "ecr" {
+  name                 = "ecr_images_from_jenkins"
+  image_tag_mutability = "MUTABLE"
+  tags = {
+    Name         = "ECR_images_from_jenkins"
+    ResourceName = "ECR"
+    Owner        = "Maxim Manovitskiy"
+  }
+}
 data "template_file" "init" {
   template = file("./jenkins.sh")
   vars = {
-    efs_address = aws_efs_file_system.efs_jenkins_home.dns_name
+    efs_address           = aws_efs_file_system.efs_jenkins_home.dns_name
+    AWS_ACCESS_KEY_ID     = var.AWS_ACCESS_KEY_ID
+    AWS_SECRET_ACCESS_KEY = var.AWS_SECRET_ACCESS_KEY
+    AWS_DEFAULT_REGION    = var.AWS_DEFAULT_REGION
   }
 }
 

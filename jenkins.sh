@@ -9,6 +9,7 @@ add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(
 apt update
 apt install docker-ce -y
 apt install nfs-common -y
+apt  install awscli
 mkdir -p /var/lib/jenkins
 mount \
     -t nfs4 \
@@ -22,6 +23,25 @@ if [ $? != 0 ]; then
 	apt install jenkins -y
   sleep 30
   cd /home/ubuntu && su ubuntu -c "wget http://localhost:8080/jnlpJars/jenkins-cli.jar"
+  sed -i 's/<globalNodeProperties\/>/<globalNodeProperties>\
+  <hudson.slaves.EnvironmentVariablesNodeProperty>\
+  <envVars serialization="custom">\
+  <unserializable-parents\/>\
+  <tree-map>\
+  <default>\
+  <comparator class="hudson.util.CaseInsensitiveComparator"\/>\
+  <\/default>\
+  <int>3<\/int>\
+  <string>AWS_ACCESS_KEY_ID<\/string>\
+  <string>${AWS_ACCESS_KEY_ID}<\/string>\
+  <string>AWS_SECRET_ACCESS_KEY<\/string>\
+  <string>${AWS_SECRET_ACCESS_KEY}<\/string>\
+  <string>AWS_DEFAULT_REGION<\/string>\
+  <string>${AWS_DEFAULT_REGION}<\/string>\
+  <\/tree-map>\
+  <\/envVars>\
+  <\/hudson.slaves.EnvironmentVariablesNodeProperty>\
+  <\/globalNodeProperties>/g' /var/lib/jenkins/config.xml
   java -jar ./jenkins-cli.jar -s http://localhost:8080 \
   -auth admin:"$(cat /var/lib/jenkins/secrets/initialAdminPassword)" \
   -noKeyAuth install-plugin greenballs -restart

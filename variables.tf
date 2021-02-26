@@ -23,3 +23,15 @@ variable "access_ip" {
   type    = list(any)
   default = [""]
 }
+variable "AWS_ACCESS_KEY_ID" {}
+variable "AWS_SECRET_ACCESS_KEY" {}
+variable "AWS_DEFAULT_REGION" {}
+
+variable "eks_priv_subnet_cidr_block" {
+  type    = list(any)
+  default = ["10.0.100.0/24", "10.0.101.0/24"]
+}
+variable "nat_pub_subnet_cidr_block" {
+  type    = list(any)
+  default = ["10.0.150.0/24", "10.0.151.0/24"]
+}
