@@ -9,7 +9,7 @@ add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(
 apt update
 apt install docker-ce -y
 apt install nfs-common -y
-apt  install awscli
+apt  install awscli -y
 mkdir -p /var/lib/jenkins
 mount \
     -t nfs4 \
@@ -17,11 +17,12 @@ mount \
     ${efs_address}:/ /var/lib/jenkins
 service jenkins status
 if [ $? != 0 ]; then
-  useradd jenkins
+  useradd jenkins -m
+  chown jenkins /home/jenkins/.aws/credentials
   usermod -a -G docker jenkins
 	apt install openjdk-11-jdk -y
 	apt install jenkins -y
-  sleep 30
+  sleep 35
   cd /home/ubuntu && su ubuntu -c "wget http://localhost:8080/jnlpJars/jenkins-cli.jar"
   sed -i 's/<globalNodeProperties\/>/<globalNodeProperties>\
   <hudson.slaves.EnvironmentVariablesNodeProperty>\
@@ -42,7 +43,17 @@ if [ $? != 0 ]; then
   <\/envVars>\
   <\/hudson.slaves.EnvironmentVariablesNodeProperty>\
   <\/globalNodeProperties>/g' /var/lib/jenkins/config.xml
+  su jenkins -c "mkdir -p ~/.aws"
+  su jenkins -c "cat <<EOF > /home/jenkins/.aws/credentials
+[default]
+aws_access_key_id = ${AWS_ACCESS_KEY_ID}
+aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}
+EOF"
+  su jenkins -c "cat <<EOF > /home/jenkins/.aws/config
+[default]
+region = ${AWS_DEFAULT_REGION}
+EOF"
   java -jar ./jenkins-cli.jar -s http://localhost:8080 \
   -auth admin:"$(cat /var/lib/jenkins/secrets/initialAdminPassword)" \
-  -noKeyAuth install-plugin greenballs -restart
+  -noKeyAuth install-plugin greenballs github -restart
 fi

@@ -1,3 +1,12 @@
+terraform {
+  backend "s3" {
+    bucket         = "terraform-20210301092226465500000001"
+    key            = "global/s3/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "remote-state-locks"
+    encrypt        = true
+  }
+}
 provider "aws" {
   region = var.region
 }
@@ -13,56 +22,6 @@ data "aws_ami" "ubuntu_ami" {
 }
 
 # ______________________________________________________________________________
-resource "aws_vpc" "main_vpc" {
-  cidr_block           = var.main_vpc_cidr_block
-  enable_dns_hostnames = true
-  enable_dns_support   = true
-  tags = {
-    Name         = "Main_VPC"
-    ResourceName = "VPC"
-    Owner        = "Maxim Manovitskiy"
-  }
-}
-
-resource "aws_internet_gateway" "gw" {
-  vpc_id = aws_vpc.main_vpc.id
-  tags = {
-    Name         = "Jenkins_IGW"
-    ResourceName = "IGW"
-    Owner        = "Maxim Manovitskiy"
-  }
-}
-resource "aws_route_table" "route_table" {
-  vpc_id = aws_vpc.main_vpc.id
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.gw.id
-  }
-  tags = {
-    Name         = "ELB route table"
-    ResourceName = "Route_table"
-    Owner        = "Maxim Manovitskiy"
-  }
-}
-
-resource "aws_route_table_association" "table" {
-  subnet_id      = element(aws_subnet.elb_subnet.*.id, count.index)
-  count          = length(var.elb_subnet_cidr_block)
-  route_table_id = aws_route_table.route_table.id
-}
-
-resource "aws_subnet" "elb_subnet" {
-  vpc_id                  = aws_vpc.main_vpc.id
-  count                   = length(var.elb_subnet_cidr_block)
-  cidr_block              = element(var.elb_subnet_cidr_block, count.index)
-  availability_zone       = element(data.aws_availability_zones.available.names, count.index)
-  map_public_ip_on_launch = true
-  tags = {
-    Name         = "ELB subnet"
-    ResourceName = "VPC_subnet"
-    Owner        = "Maxim Manovitskiy"
-  }
-}
 
 resource "aws_key_pair" "jenkins_key" {
   key_name   = "jenkins_key"
@@ -192,6 +151,31 @@ resource "aws_ecr_repository" "ecr" {
     Owner        = "Maxim Manovitskiy"
   }
 }
+resource "aws_ecr_lifecycle_policy" "ecr_policy" {
+  repository = aws_ecr_repository.ecr.name
+
+  policy = <<EOF
+{
+  "rules": [
+    {
+      "action": {
+        "type": "expire"
+      },
+      "selection": {
+        "countType": "imageCountMoreThan",
+        "countNumber": 10,
+        "tagStatus": "tagged",
+        "tagPrefixList": [
+          "nginx_test"
+        ]
+      },
+      "description": "Keep only 10 images",
+      "rulePriority": 1
+    }
+  ]
+}
+EOF
+}
 data "template_file" "init" {
   template = file("./jenkins.sh")
   vars = {
@@ -210,4 +194,53 @@ data "template_cloudinit_config" "config" {
     content_type = "text/x-shellscript"
     content      = data.template_file.init.rendered
   }
+}
+
+
+
+
+
+
+
+
+resource "aws_eks_cluster" "nginx_eks" {
+  name     = "nginx_eks"
+  role_arn = aws_iam_role.eks_cluster_role.arn
+  vpc_config {
+    subnet_ids = aws_subnet.eks_priv_subnet.*.id
+  }
+  depends_on = [aws_iam_role_policy_attachment.eks_cluster_policy]
+  tags = {
+    Name         = "EKS_nginx_cluster"
+    ResourceName = "EKS_cluster"
+    Owner        = "Maxim Manovitskiy"
+  }
+}
+resource "aws_iam_role" "eks_cluster_role" {
+  name = "eks_cluster_role"
+
+  assume_role_policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "eks.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+POLICY
+  tags = {
+    Name         = "EKS_cluster_iam_role"
+    ResourceName = "IAM_role"
+    Owner        = "Maxim Manovitskiy"
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+  role       = aws_iam_role.eks_cluster_role.name
 }
