@@ -24,12 +24,3 @@ variable "access_ip" {
 variable "AWS_ACCESS_KEY_ID" {}
 variable "AWS_SECRET_ACCESS_KEY" {}
 variable "AWS_DEFAULT_REGION" {}
-
-variable "eks_priv_subnet_cidr_block" {
-  type        = list(any)
-  description = "CIDR blocks for EKS subnets"
-}
-variable "nat_pub_subnet_cidr_block" {
-  type        = list(any)
-  description = "CIDR blocks for NAT subnets"
-}

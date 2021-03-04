@@ -11,7 +11,9 @@ provider "aws" {
   region = var.region
 }
 
-data "aws_availability_zones" "available" {}
+data "aws_availability_zones" "available" {
+  state = "available"
+}
 data "aws_ami" "ubuntu_ami" {
   owners      = ["099720109477"]
   most_recent = true
@@ -35,7 +37,7 @@ resource "aws_key_pair" "jenkins_key" {
 
 resource "aws_security_group" "jenkins_group" {
   name   = "jenkins_group"
-  vpc_id = aws_vpc.main_vpc.id
+  vpc_id = module.vpc.id
   ingress {
     from_port       = 0
     to_port         = 0
@@ -61,7 +63,7 @@ resource "aws_launch_configuration" "jenkins_LC" {
   instance_type   = var.instance_type
   key_name        = aws_key_pair.jenkins_key.id
   security_groups = [aws_security_group.jenkins_group.id]
-  user_data       = data.template_cloudinit_config.config.rendered
+  user_data       = data.template_file.init.rendered
 }
 
 resource "aws_autoscaling_group" "jenkins_autosc_group" {
@@ -69,7 +71,7 @@ resource "aws_autoscaling_group" "jenkins_autosc_group" {
   launch_configuration = aws_launch_configuration.jenkins_LC.name
   min_size             = 1
   max_size             = 1
-  vpc_zone_identifier  = aws_subnet.elb_subnet.*.id
+  vpc_zone_identifier  = module.elb_subnet.id
   load_balancers       = [aws_elb.jenkins-elb.id]
   target_group_arns    = [aws_lb_target_group.lb_target.arn]
   health_check_type    = "EC2"
@@ -108,22 +110,22 @@ resource "aws_efs_file_system" "efs_jenkins_home" {
 }
 resource "aws_efs_mount_target" "jenkins_efs_mount_0" {
   file_system_id  = aws_efs_file_system.efs_jenkins_home.id
-  subnet_id       = aws_subnet.elb_subnet.*.id[0]
+  subnet_id       = module.elb_subnet.id[0]
   security_groups = [aws_security_group.efs_sg.id]
 }
 resource "aws_efs_mount_target" "jenkins_efs_mount_1" {
   file_system_id  = aws_efs_file_system.efs_jenkins_home.id
-  subnet_id       = aws_subnet.elb_subnet.*.id[1]
+  subnet_id       = module.elb_subnet.id[1]
   security_groups = [aws_security_group.efs_sg.id]
 }
 resource "aws_efs_mount_target" "jenkins_efs_mount_2" {
   file_system_id  = aws_efs_file_system.efs_jenkins_home.id
-  subnet_id       = aws_subnet.elb_subnet.*.id[2]
+  subnet_id       = module.elb_subnet.id[2]
   security_groups = [aws_security_group.efs_sg.id]
 }
 resource "aws_security_group" "efs_sg" {
   name   = "efs_sg"
-  vpc_id = aws_vpc.main_vpc.id
+  vpc_id = module.vpc.id
   ingress {
     security_groups = [aws_security_group.jenkins_group.id]
     from_port       = 2049
@@ -155,25 +157,22 @@ resource "aws_ecr_lifecycle_policy" "ecr_policy" {
   repository = aws_ecr_repository.ecr.name
 
   policy = <<EOF
-{
-  "rules": [
-    {
-      "action": {
-        "type": "expire"
-      },
-      "selection": {
-        "countType": "imageCountMoreThan",
-        "countNumber": 10,
-        "tagStatus": "tagged",
-        "tagPrefixList": [
-          "nginx_test"
-        ]
-      },
-      "description": "Keep only 10 images",
-      "rulePriority": 1
-    }
-  ]
-}
+  {
+    "rules": [
+      {
+        "rulePriority": 1,
+        "description": "Keep only 10 images",
+        "selection": {
+          "tagStatus": "any",
+          "countType": "imageCountMoreThan",
+          "countNumber": 10
+        },
+        "action": {
+          "type": "expire"
+        }
+      }
+    ]
+  }
 EOF
 }
 data "template_file" "init" {
@@ -184,63 +183,4 @@ data "template_file" "init" {
     AWS_SECRET_ACCESS_KEY = var.AWS_SECRET_ACCESS_KEY
     AWS_DEFAULT_REGION    = var.AWS_DEFAULT_REGION
   }
-}
-
-data "template_cloudinit_config" "config" {
-  gzip          = false
-  base64_encode = false
-  part {
-    filename     = "./jenkins.sh"
-    content_type = "text/x-shellscript"
-    content      = data.template_file.init.rendered
-  }
-}
-
-
-
-
-
-
-
-
-resource "aws_eks_cluster" "nginx_eks" {
-  name     = "nginx_eks"
-  role_arn = aws_iam_role.eks_cluster_role.arn
-  vpc_config {
-    subnet_ids = aws_subnet.eks_priv_subnet.*.id
-  }
-  depends_on = [aws_iam_role_policy_attachment.eks_cluster_policy]
-  tags = {
-    Name         = "EKS_nginx_cluster"
-    ResourceName = "EKS_cluster"
-    Owner        = "Maxim Manovitskiy"
-  }
-}
-resource "aws_iam_role" "eks_cluster_role" {
-  name = "eks_cluster_role"
-
-  assume_role_policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "eks.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-POLICY
-  tags = {
-    Name         = "EKS_cluster_iam_role"
-    ResourceName = "IAM_role"
-    Owner        = "Maxim Manovitskiy"
-  }
-}
-
-resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
-  role       = aws_iam_role.eks_cluster_role.name
 }
