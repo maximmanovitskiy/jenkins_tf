@@ -12,3 +12,6 @@ variable "nat_pub_subnet_cidr_block" {
   type        = list(any)
   description = "CIDR blocks for NAT subnets"
 }
+variable "vpn_cidr" {
+  description = "CIDR block for client IP address"
+}

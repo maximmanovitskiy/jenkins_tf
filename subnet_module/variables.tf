@@ -7,6 +7,7 @@ variable "subnet_cidr_block" {
 }
 variable "map_public_ip" {
   description = "Map public ip on launch"
+  default     = true
 }
 variable "availability_zones" {
   type        = any
