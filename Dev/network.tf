@@ -33,7 +33,7 @@ resource "aws_route_table" "route_table_eks" {
     gateway_id = aws_internet_gateway.gw_eks.id
   }
   tags = {
-    Name         = "ELB route table"
+    Name         = "NAT-IG route table"
     ResourceName = "Route_table"
     Owner        = "Maxim Manovitskiy"
   }

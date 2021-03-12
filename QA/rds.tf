@@ -12,6 +12,8 @@ module "rds" {
   db_user       = var.db_user
   db_password   = var.db_passwd
   access_ip     = var.access_ip
+
+  depends_on = [module.vpc, module.subnets]
 }
 module "vpc" {
   source         = "../vpc_module"
