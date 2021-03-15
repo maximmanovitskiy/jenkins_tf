@@ -27,3 +27,10 @@ variable "priv_access" {
   default     = false
   description = "whether or not EKS private API endpoint is enabled"
 }
+variable "sg_for_access" {
+  type        = list(any)
+  description = "Security groups to access cluster"
+}
+variable "vpc_id" {
+  description = "ID of the VPC"
+}

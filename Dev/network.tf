@@ -62,35 +62,6 @@ resource "aws_route_table_association" "nat_pub_route" {
   count          = length(var.nat_pub_subnet_cidr_block)
   route_table_id = aws_route_table.route_table_eks.id
 }
-# EKS private subnet
-/*
-resource "aws_subnet" "eks_priv_subnet" {
-  vpc_id     = module.vpc.id
-  count      = length(var.eks_priv_subnet_cidr_block)
-  cidr_block = element(var.eks_priv_subnet_cidr_block, count.index)
-  # availability_zone = element(var.availability_zones, count.index)
-  tags = {
-    Name         = "EKS private subnet"
-    ResourceName = "VPC_subnet"
-    Owner        = "Maxim Manovitskiy"
-  }
-}
-
-# NAT public subnets
-
-resource "aws_subnet" "nat_pub_subnet" {
-  vpc_id     = module.vpc.id
-  count      = length(var.nat_pub_subnet_cidr_block)
-  cidr_block = element(var.nat_pub_subnet_cidr_block, count.index)
-  # availability_zone       = element(var.availability_zones, count.index)
-  map_public_ip_on_launch = true
-  tags = {
-    Name         = "NAT public subnet"
-    ResourceName = "VPC_subnet"
-    Owner        = "Maxim Manovitskiy"
-  }
-}
-*/
 # Table to route first private subnet to NAT
 resource "aws_route_table" "nat_route_table1" {
   vpc_id = module.vpc.id
