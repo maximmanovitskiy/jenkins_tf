@@ -1,3 +1,4 @@
+/*
 resource "aws_ec2_client_vpn_endpoint" "eks_vpn_endp" {
   description            = "Client-VPN"
   server_certificate_arn = aws_acm_certificate.server.arn
@@ -17,7 +18,7 @@ resource "aws_ec2_client_vpn_endpoint" "eks_vpn_endp" {
   tags = {
     Name         = "VPN-EKS_endpoint"
     ResourceName = "VPN_endpoint"
-    Owner        = "Maxim Manovitskiy"
+    Owner        = var.resource_owner
   }
 }
 
@@ -57,6 +58,7 @@ resource "aws_security_group" "vpn_endpoint_grp" {
   tags = {
     Name         = "VPN_endpoint_Sec_Group"
     ResourceName = "Security_group"
-    Owner        = "Maxim Manovitskiy"
+    Owner        = var.resource_owner
   }
 }
+*/

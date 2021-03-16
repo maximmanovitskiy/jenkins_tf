@@ -32,3 +32,6 @@ variable "access_ip" {
   type        = list(any)
   description = "List of IP addresses allowed to access db"
 }
+variable "resource_owner" {
+  description = "Value for the tag 'Owner'"
+}

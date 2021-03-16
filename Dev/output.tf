@@ -4,9 +4,6 @@ output "vpc_cidr" {
 output "vpc_id" {
   value = module.vpc.id
 }
-output "vpn_dns" {
-  value = aws_ec2_client_vpn_endpoint.eks_vpn_endp.dns_name
-}
 output "bastion_ip" {
   value = aws_instance.bastion.public_ip
 }

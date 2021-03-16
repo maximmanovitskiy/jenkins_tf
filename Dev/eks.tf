@@ -11,4 +11,25 @@ module "eks" {
   priv_access         = var.priv_access
   sg_for_access       = [aws_security_group.bastion_sg.id]
   vpc_id              = module.vpc.id
+  public_key          = var.public_key
+  eks_cluster_tags = {
+    Name         = "EKS_nginx_cluster"
+    ResourceName = "EKS_cluster"
+    Owner        = var.resource_owner
+  }
+  eks_sg_tags = {
+    Name         = "Cluster_Sec_Group"
+    ResourceName = "Security_group"
+    Owner        = var.resource_owner
+  }
+  node_group_tags = {
+    Name         = "EKS_nginx_node_group"
+    ResourceName = "EKS_node_group"
+    Owner        = var.resource_owner
+  }
+  ssh_key_tags = {
+    Name         = "EKS_node_key"
+    ResourceName = "Key_pair"
+    Owner        = var.resource_owner
+  }
 }

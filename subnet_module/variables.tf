@@ -13,3 +13,7 @@ variable "availability_zones" {
   type        = any
   description = "AZ for subnet(s)"
 }
+variable "tags" {
+  description = "Tags for subnet resource"
+  type        = map(any)
+}

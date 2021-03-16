@@ -1,9 +1,9 @@
 terraform {
   backend "s3" {
     bucket         = "terraform-20210301092226465500000001"
-    key            = "global/s3/terraform.tfstate"
+    key            = "CI-CD/terraform.tfstate"
     region         = "us-east-1"
-    dynamodb_table = "remote-state-locks"
+    dynamodb_table = "jenkins"
     encrypt        = true
   }
 }
@@ -27,17 +27,17 @@ data "aws_ami" "ubuntu_ami" {
 
 resource "aws_key_pair" "jenkins_key" {
   key_name   = "jenkins_key"
-  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDmp60+GGnRIZJ9pe1F/xo7QGH7qhm23gx8ZAhVBK9Z5ysd7yyeQjMel7ZwmVYym9JWueY2eWhfJBGdnP68c2+EnAjNmZ8fsx7N9mBRYfmKjEh+wMMajZikONGk62q4a9QgrTrZCybErmNPPLdsgHwLulJ23uMWnxpDG4XGUlqMr+E1RlAYddWcpyPRND1TsGH5cy3+91SHUtFmQssTnQrPTntmUMAuFyRyAvAx94Xh0JiZi/4S1FKXwC2WMMgOC4HTQvLrC6zPkYIm9izT6LqEmZu+PxXLU5uiD8ghWyUcQ873RY8Lh3m9aa8tNv0GpOaywvymkE4p4jWnhHbOv+K+U0YLV1lVqg8m4qpPammHKpOg8/43aRDB1xTBGlpVIjTZhi7kqCj7r0DQaPy9A4KizGA7EDINaXsM6u31q+adCEjSzUrycQJutVpKezPkebpZYoMRa+qRnjS5mBH/AiNSuCH+s59GFvglZF7MkW4Nh3nVoLdGDkq/CahY+Rr3rnU="
+  public_key = var.jenkins_key
   tags = {
     Name         = "Jenkins_key"
     ResourceName = "Key_pair"
-    Owner        = "Maxim Manovitskiy"
+    Owner        = var.resource_owner
   }
 }
 
 resource "aws_security_group" "jenkins_group" {
   name   = "jenkins_group"
-  vpc_id = module.vpc.id
+  vpc_id = module.jenkins_vpc.id
   ingress {
     from_port       = 0
     to_port         = 0
@@ -53,7 +53,7 @@ resource "aws_security_group" "jenkins_group" {
   tags = {
     Name         = "Jenkins_Sec_Group"
     ResourceName = "Security_group"
-    Owner        = "Maxim Manovitskiy"
+    Owner        = var.resource_owner
   }
 }
 
@@ -78,8 +78,7 @@ resource "aws_autoscaling_group" "jenkins_autosc_group" {
   lifecycle {
     create_before_destroy = true
   }
-  depends_on = [aws_efs_file_system.efs_jenkins_home, aws_efs_mount_target.jenkins_efs_mount_0,
-  aws_efs_mount_target.jenkins_efs_mount_1, aws_efs_mount_target.jenkins_efs_mount_2]
+  depends_on = [aws_efs_file_system.efs_jenkins_home, aws_efs_mount_target.jenkins_efs_mount]
   tags = [
     {
       key                 = "ResourceName"
@@ -88,7 +87,7 @@ resource "aws_autoscaling_group" "jenkins_autosc_group" {
     },
     {
       key                 = "Owner"
-      value               = "Maxim Manovitskiy"
+      value               = var.resource_owner
       propagate_at_launch = true
     },
     {
@@ -105,26 +104,10 @@ resource "aws_efs_file_system" "efs_jenkins_home" {
   tags = {
     Name         = "Jenkins EFS"
     ResourceName = "EFS"
-    Owner        = "Maxim Manovitskiy"
+    Owner        = var.resource_owner
   }
 }
-/*
-resource "aws_efs_mount_target" "jenkins_efs_mount_0" {
-  file_system_id  = aws_efs_file_system.efs_jenkins_home.id
-  subnet_id       = module.elb_subnet.id[0]
-  security_groups = [aws_security_group.efs_sg.id]
-}
-resource "aws_efs_mount_target" "jenkins_efs_mount_1" {
-  file_system_id  = aws_efs_file_system.efs_jenkins_home.id
-  subnet_id       = module.elb_subnet.id[1]
-  security_groups = [aws_security_group.efs_sg.id]
-}
-resource "aws_efs_mount_target" "jenkins_efs_mount_2" {
-  file_system_id  = aws_efs_file_system.efs_jenkins_home.id
-  subnet_id       = module.elb_subnet.id[2]
-  security_groups = [aws_security_group.efs_sg.id]
-}
-*/
+
 resource "aws_efs_mount_target" "jenkins_efs_mount" {
   file_system_id  = aws_efs_file_system.efs_jenkins_home.id
   count           = length(module.elb_subnet.id)
@@ -133,7 +116,7 @@ resource "aws_efs_mount_target" "jenkins_efs_mount" {
 }
 resource "aws_security_group" "efs_sg" {
   name   = "efs_sg"
-  vpc_id = module.vpc.id
+  vpc_id = module.jenkins_vpc.id
   ingress {
     security_groups = [aws_security_group.jenkins_group.id]
     from_port       = 2049
@@ -149,7 +132,7 @@ resource "aws_security_group" "efs_sg" {
   tags = {
     Name         = "EFS_Jenkins_Sec_Group"
     ResourceName = "Security_group"
-    Owner        = "Maxim Manovitskiy"
+    Owner        = var.resource_owner
   }
 }
 resource "aws_ecr_repository" "ecr" {
@@ -158,7 +141,7 @@ resource "aws_ecr_repository" "ecr" {
   tags = {
     Name         = "ECR_images_from_jenkins"
     ResourceName = "ECR"
-    Owner        = "Maxim Manovitskiy"
+    Owner        = var.resource_owner
   }
 }
 resource "aws_ecr_lifecycle_policy" "ecr_policy" {

@@ -3,6 +3,11 @@ module "vpc" {
   vpc_cidr_block = var.eks_vpc_cidr_block
   dns_hostnames  = true
   dns_support    = true
+  tags = {
+    Name         = "EKS_VPC"
+    ResourceName = "VPC"
+    Owner        = var.resource_owner
+  }
 }
 module "nat_subnets" {
   source             = "../subnet_module"
@@ -10,6 +15,11 @@ module "nat_subnets" {
   subnet_cidr_block  = var.nat_pub_subnet_cidr_block
   availability_zones = data.aws_availability_zones.available.names
   map_public_ip      = true
+  tags = {
+    Name         = "NAT_public_subnets"
+    ResourceName = "VPC_subnets"
+    Owner        = var.resource_owner
+  }
 }
 module "eks_subnets" {
   source             = "../subnet_module"
@@ -17,13 +27,18 @@ module "eks_subnets" {
   subnet_cidr_block  = var.eks_priv_subnet_cidr_block
   availability_zones = data.aws_availability_zones.available.names
   map_public_ip      = true
+  tags = {
+    Name         = "EKS_private_subnets"
+    ResourceName = "VPC_subnets"
+    Owner        = var.resource_owner
+  }
 }
 resource "aws_internet_gateway" "gw_eks" {
   vpc_id = module.vpc.id
   tags = {
-    Name         = "Jenkins_IGW"
+    Name         = "EKS_cluster_IGW"
     ResourceName = "IGW"
-    Owner        = "Maxim Manovitskiy"
+    Owner        = var.resource_owner
   }
 }
 resource "aws_route_table" "route_table_eks" {
@@ -35,7 +50,7 @@ resource "aws_route_table" "route_table_eks" {
   tags = {
     Name         = "NAT-IG route table"
     ResourceName = "Route_table"
-    Owner        = "Maxim Manovitskiy"
+    Owner        = var.resource_owner
   }
 }
 resource "aws_eip" "nat_eip1" {
@@ -44,7 +59,7 @@ resource "aws_eip" "nat_eip1" {
   tags = {
     Name         = "NAT first elastic_ip"
     ResourceName = "EIP"
-    Owner        = "Maxim Manovitskiy"
+    Owner        = var.resource_owner
   }
 }
 resource "aws_eip" "nat_eip2" {
@@ -53,12 +68,12 @@ resource "aws_eip" "nat_eip2" {
   tags = {
     Name         = "NAT second elastic_ip"
     ResourceName = "EIP"
-    Owner        = "Maxim Manovitskiy"
+    Owner        = var.resource_owner
   }
 }
 # Route NAT subnets to IG
 resource "aws_route_table_association" "nat_pub_route" {
-  subnet_id      = element(module.nat_subnets.id, count.index)
+  subnet_id      = module.nat_subnets.id[count.index]
   count          = length(var.nat_pub_subnet_cidr_block)
   route_table_id = aws_route_table.route_table_eks.id
 }
@@ -72,7 +87,7 @@ resource "aws_route_table" "nat_route_table1" {
   tags = {
     Name         = "First NAT route table"
     ResourceName = "Route_table"
-    Owner        = "Maxim Manovitskiy"
+    Owner        = var.resource_owner
   }
 }
 # Table to route second private subnet to NAT
@@ -85,7 +100,7 @@ resource "aws_route_table" "nat_route_table2" {
   tags = {
     Name         = "Second NAT route table"
     ResourceName = "Route_table"
-    Owner        = "Maxim Manovitskiy"
+    Owner        = var.resource_owner
   }
 }
 # Link first private subnet with route to NAT
@@ -106,7 +121,7 @@ resource "aws_nat_gateway" "nat_gw1" {
   tags = {
     Name         = "First_EKS_NAT_GW"
     ResourceName = "NAT_GW"
-    Owner        = "Maxim Manovitskiy"
+    Owner        = var.resource_owner
   }
 }
 # Second NAT gateway
@@ -117,6 +132,6 @@ resource "aws_nat_gateway" "nat_gw2" {
   tags = {
     Name         = "Second_EKS_NAT_GW"
     ResourceName = "NAT_GW"
-    Owner        = "Maxim Manovitskiy"
+    Owner        = var.resource_owner
   }
 }

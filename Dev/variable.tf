@@ -62,3 +62,10 @@ variable "bastion_acc_ip" {
 variable "AWS_ACCESS_KEY_ID" {}
 variable "AWS_SECRET_ACCESS_KEY" {}
 variable "AWS_DEFAULT_REGION" {}
+
+variable "resource_owner" {
+  description = "Value for the tag 'Owner'"
+}
+variable "public_key" {
+  description = "Public ssh key for node group/bastion access"
+}

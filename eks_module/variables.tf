@@ -34,3 +34,18 @@ variable "sg_for_access" {
 variable "vpc_id" {
   description = "ID of the VPC"
 }
+variable "eks_cluster_tags" {
+  description = "Tags of the EKS cluster resource"
+}
+variable "eks_sg_tags" {
+  description = "Tags of the EKS cluster security group resource"
+}
+variable "node_group_tags" {
+  description = "Tags of the EKS cluster node group resource"
+}
+variable "ssh_key_tags" {
+  description = "Tags for ssh key for node group"
+}
+variable "public_key" {
+  description = "Public ssh key for node group access"
+}

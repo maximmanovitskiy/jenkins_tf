@@ -1,3 +1,4 @@
+/*
 resource "tls_private_key" "server" {
   algorithm = "RSA"
 }
@@ -34,6 +35,7 @@ resource "aws_acm_certificate" "server" {
   tags = {
     Name         = "VPN-server-amc_cert"
     ResourceName = "server_certificate"
-    Owner        = "Maxim Manovitskiy"
+    Owner        = var.resource_owner
   }
 }
+*/

@@ -1,3 +1,4 @@
+/*
 resource "tls_private_key" "ca" {
   algorithm = "RSA"
 }
@@ -23,4 +24,10 @@ resource "tls_self_signed_cert" "ca" {
 resource "aws_acm_certificate" "ca" {
   private_key      = tls_private_key.ca.private_key_pem
   certificate_body = tls_self_signed_cert.ca.cert_pem
+  tags = {
+    Name         = "CA_VPN"
+    ResourceName = "acm_certificate"
+    Owner        = var.resource_owner
+  }
 }
+*/

@@ -1,9 +1,7 @@
 #!bin/bash
 /root/change-ssh-port.sh ${bast_ssh_port} ${bast_knock_port1} \
 ${bast_knock_port2} ${bast_knock_port3}
-# need to set up aws cli + kubectl
 yum remove aws-cli -y
-# rm -rf /usr/local/aws /usr/local/bin/aws
 cd /home/ec2-user && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.0.30.zip" -o "awscliv2.zip"
 unzip awscliv2.zip && rm awscliv2.zip
 ./aws/install && rm -rf ./aws

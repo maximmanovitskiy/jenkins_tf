@@ -15,7 +15,11 @@ variable "alb_ports" {
 }
 variable "elb_ports" {
   type        = list(any)
-  description = "ELB Port for SSH connection"
+  description = "ELB Port for opened connections"
+}
+variable "lb_ssh_port" {
+  type        = number
+  description = "LB port for Jenkins ssh connection"
 }
 variable "access_ip" {
   type        = list(any)
@@ -24,3 +28,9 @@ variable "access_ip" {
 variable "AWS_ACCESS_KEY_ID" {}
 variable "AWS_SECRET_ACCESS_KEY" {}
 variable "AWS_DEFAULT_REGION" {}
+variable "resource_owner" {
+  description = "Value for the tag 'Owner'"
+}
+variable "jenkins_key" {
+  description = "SSH key for Jenkins access"
+}

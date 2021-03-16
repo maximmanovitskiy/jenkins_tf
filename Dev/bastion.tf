@@ -1,9 +1,13 @@
 module "bast_subnet" {
-  source = "../subnet_module"
-
+  source             = "../subnet_module"
   vpc_id             = module.vpc.id
   subnet_cidr_block  = var.bastion_cidr_block
   availability_zones = data.aws_availability_zones.available.names
+  tags = {
+    Name         = "Bastion_subnet"
+    ResourceName = "VPC_subnet"
+    Owner        = var.resource_owner
+  }
 }
 resource "aws_route_table_association" "bast_pub_route" {
   subnet_id      = module.bast_subnet.id[count.index]
@@ -22,16 +26,16 @@ resource "aws_instance" "bastion" {
   tags = {
     Name         = "Bastion_EC2"
     ResourceName = "EC2"
-    Owner        = "Maxim Manovitskiy"
+    Owner        = var.resource_owner
   }
 }
 resource "aws_key_pair" "bastion_key" {
   key_name   = "bastion_key"
-  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC9tGkZrP7SItDRdzwkAv3OXkoPlZ20WAA+MVrqI4MZZNhjmfRldsRxZ/hm7hEnF4YWYRKXQEigWLnqEnQusgaTjg2pkfp2nXi4ak+Jmv+b9pzp/KskI1+eCzDW+87L4sFp+p0yExEsf3DPqb+QW0VmyuK/ishkckQkrks1ESf3bI8Z0YDjqPKnU5pt6O+IhdwOwGZVsHaFtQU/xr3hO0lmdR3G88zylD0ljzZoRczt0aJgzfIjM74rDIcXQb4RXMDIex24TC628jLkYqnGzsUd4vIZPnAZdhfUTO7DlXlZX3/3VCaEU80hL/FWcMpJnK5xCuryuRXArg1SSRJJ0HCwQCN/sKwmK/woJdw+pNI8KYTw10MDLaD9FEiGQ6jyDXJ2G97tWN1pHmqkiPnUguunwZ7Q/uVRdbkjb+1X/3jhNyJAHa9tL42qH8t7IwTZB4XktvJMtaWoaH9BxYgtFLSX86wsnZ+tDp9sIkS0L+3e25QIdcqiRHjEPE9K705hblrZV+8ySZXWi6wT2Dra+0jOfbLS4aMUiExyJwHugPwqgEjYVWm1MJPjwm5KaWobwQ3UrVnGazcP8EfMWxi0EtQ9USi3/90JceEddXo9t7xHu6r0CjTCcc87VE+GLqJwXWwObfFnyBs2ge1hidY+UIGtx2tGxYZeMfMCD4pk6TQUVQ=="
+  public_key = var.public_key
   tags = {
     Name         = "EKS_node_key"
     ResourceName = "Key_pair"
-    Owner        = "Maxim Manovitskiy"
+    Owner        = var.resource_owner
   }
 }
 resource "aws_security_group" "bastion_sg" {
@@ -56,7 +60,7 @@ resource "aws_security_group" "bastion_sg" {
   tags = {
     Name         = "Bastion_Sec_Group"
     ResourceName = "Security_group"
-    Owner        = "Maxim Manovitskiy"
+    Owner        = var.resource_owner
   }
 }
 data "template_file" "bastion_script" {

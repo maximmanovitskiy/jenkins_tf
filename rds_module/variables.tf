@@ -40,3 +40,14 @@ variable "access_ip" {
 variable "subnet_ids" {
   description = "Subnet IDs for RDS"
 }
+variable "subnet_gr_tags" {
+  type        = map(any)
+  description = "Tags for RDS subnet group"
+}
+variable "db_instance_tags" {
+  type        = map(any)
+  description = "Tags for RDS db instance"
+}
+variable "db_sg_tags" {
+  description = "Tags for RDS db security group"
+}

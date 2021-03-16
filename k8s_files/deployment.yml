@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+        nginx/version: "1.0"
+    spec:
+      containers:
+      - name: nginx
+        image: 482720962971.dkr.ecr.us-east-1.amazonaws.com/ecr_images_from_jenkins:latest
+        ports:
+        - containerPort: 80
+
