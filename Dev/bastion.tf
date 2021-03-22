@@ -12,7 +12,7 @@ module "bast_subnet" {
 resource "aws_route_table_association" "bast_pub_route" {
   subnet_id      = module.bast_subnet.id[count.index]
   count          = length(var.bastion_cidr_block)
-  route_table_id = aws_route_table.route_table_eks.id
+  route_table_id = module.nat_network.ig_route_table_id
 }
 
 resource "aws_instance" "bastion" {
@@ -20,15 +20,28 @@ resource "aws_instance" "bastion" {
   instance_type          = "t2.micro"
   subnet_id              = module.bast_subnet.id[0]
   vpc_security_group_ids = [aws_security_group.bastion_sg.id]
+  iam_instance_profile   = aws_iam_instance_profile.bastion_profile1.id
   key_name               = aws_key_pair.bastion_key.id
   user_data              = data.template_file.bastion_script.rendered
   depends_on             = [module.eks]
+  /*
+  provisioner "file" {
+    source      = data.template_file.cluster-iam.rendered
+    destination = "/home/ec2-user/admin-rights.yml"
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "kubectl apply -f /home/ec2-user/admin-rights.yml",
+    ]
+  }
+  */
   tags = {
     Name         = "Bastion_EC2"
     ResourceName = "EC2"
     Owner        = var.resource_owner
   }
 }
+
 resource "aws_key_pair" "bastion_key" {
   key_name   = "bastion_key"
   public_key = var.public_key
@@ -66,6 +79,7 @@ resource "aws_security_group" "bastion_sg" {
 data "template_file" "bastion_script" {
   template = file("./bastion.sh")
   vars = {
+    account_id            = data.aws_caller_identity.current.account_id
     bast_ssh_port         = var.bast_ssh_port
     bast_knock_port1      = var.bast_knock_port1
     bast_knock_port2      = var.bast_knock_port2
@@ -76,3 +90,11 @@ data "template_file" "bastion_script" {
     cluster_name          = var.eks_cluster_name
   }
 }
+/*
+data "template_file" "cluster-iam" {
+  template = file("./admin-rights.yml")
+  vars = {
+    account_id = data.aws_caller_identity.current.account_id
+  }
+}
+*/

@@ -4,8 +4,12 @@ output "vpc_cidr" {
 output "vpc_id" {
   value = module.vpc.id
 }
+
 output "bastion_ip" {
   value = aws_instance.bastion.public_ip
+}
+output "ingress_policy_arn" {
+  value = aws_iam_policy.ingress-controller-policy.arn
 }
 /*
 output "private_key" {

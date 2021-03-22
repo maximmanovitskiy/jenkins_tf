@@ -19,4 +19,64 @@ su ec2-user -c "cat <<EOF > ~/.aws/config
 [default]
 region = ${AWS_DEFAULT_REGION}
 EOF"
-su ec2-user -c "/usr/local/bin/aws eks update-kubeconfig --name ${cluster_name}"
+su ec2-user -c "/usr/local/bin/aws eks update-kubeconfig --name ${cluster_name} \
+--role-arn arn:aws:iam::${account_id}:role/cluster_admin"
+su ec2-user -c "cat <<EOF > ~/admin-rights.yml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cluster_admin
+rules:
+- apiGroups:
+  - '*'
+  resources:
+  - '*'
+  verbs:
+  - '*'
+- nonResourceURLs:
+  - '*'
+  verbs:
+  - '*'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    kubernetes.io/bootstrapping: rbac-defaults
+  name: cluster_admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster_admin
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: system:masters
+---
+apiVersion: v1
+data:
+  mapRoles: |-
+    - groups:
+      - system:bootstrappers
+      - system:nodes
+      rolearn: arn:aws:iam::${account_id}:role/eks-node-group-role
+      username: system:node:{{EC2PrivateDNSName}}
+    - groups:
+      - system:masters
+      rolearn: arn:aws:iam::${account_id}:role/cluster_admin
+            username: cluster_admin
+kind: ConfigMap
+metadata:
+  name: aws-auth
+  namespace: kube-system
+EOF"
+su ec2-user -c "kubectl apply -f /home/ec2-user/admin-rights.yml"
+rm /home/ec2-user/.aws/credentials
+
+
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+mv /tmp/eksctl /usr/local/bin
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+chmod 700 get_helm.sh
+./get_helm.sh
+yum install git -y

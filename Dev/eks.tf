@@ -1,9 +1,10 @@
+
 module "eks" {
   source              = "../eks_module"
   name                = var.eks_cluster_name
-  subnet_ids          = module.eks_subnets.id
+  subnet_ids          = module.nat_network.priv_subnet_id
   node_group_name     = "nginx_eks_group"
-  node_subnet_ids     = module.eks_subnets.id
+  node_subnet_ids     = module.nat_network.priv_subnet_id
   desired_node_number = var.desired_node_number
   max_node_number     = var.max_node_number
   min_node_number     = var.min_node_number

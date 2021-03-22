@@ -9,6 +9,52 @@ module "vpc" {
     Owner        = var.resource_owner
   }
 }
+module "nat_network" {
+  source                 = "../nat_module"
+  vpc_id                 = module.vpc.id
+  pub_subnet_cidr_block  = var.nat_pub_subnet_cidr_block
+  availability_zones     = data.aws_availability_zones.available.names
+  priv_subnet_cidr_block = var.eks_priv_subnet_cidr_block
+  gw_tags = {
+    Name         = "EKS_cluster_IGW"
+    ResourceName = "IGW"
+    Owner        = var.resource_owner
+  }
+  ig_route_table_tags = {
+    Name         = "NAT-IG route table"
+    ResourceName = "Route_table"
+    Owner        = var.resource_owner
+  }
+  pub_subnet_tags = {
+    Name                              = "NAT_public_subnets"
+    ResourceName                      = "VPC_subnets"
+    Owner                             = var.resource_owner
+    "kubernetes.io/role/elb"          = "1"
+    "kubernetes.io/cluster/nginx-eks" = "shared"
+  }
+  priv_subnet_tags = {
+    Name                              = "EKS_private_subnets"
+    ResourceName                      = "VPC_subnets"
+    Owner                             = var.resource_owner
+    "kubernetes.io/cluster/nginx-eks" = "shared"
+  }
+  nat_eip_tags = {
+    Name         = "NAT elastic_ip"
+    ResourceName = "EIP"
+    Owner        = var.resource_owner
+  }
+  nat_table_tags = {
+    Name         = "NAT route table"
+    ResourceName = "Route_table"
+    Owner        = var.resource_owner
+  }
+  nat_gw_tags = {
+    Name         = "EKS_NAT_GW"
+    ResourceName = "NAT_GW"
+    Owner        = var.resource_owner
+  }
+}
+/*
 module "nat_subnets" {
   source             = "../subnet_module"
   vpc_id             = module.vpc.id
@@ -16,9 +62,11 @@ module "nat_subnets" {
   availability_zones = data.aws_availability_zones.available.names
   map_public_ip      = true
   tags = {
-    Name         = "NAT_public_subnets"
-    ResourceName = "VPC_subnets"
-    Owner        = var.resource_owner
+    Name                              = "NAT_public_subnets"
+    ResourceName                      = "VPC_subnets"
+    Owner                             = var.resource_owner
+    "kubernetes.io/role/elb"          = "1"
+    "kubernetes.io/cluster/nginx-eks" = "shared"
   }
 }
 module "eks_subnets" {
@@ -28,9 +76,10 @@ module "eks_subnets" {
   availability_zones = data.aws_availability_zones.available.names
   map_public_ip      = true
   tags = {
-    Name         = "EKS_private_subnets"
-    ResourceName = "VPC_subnets"
-    Owner        = var.resource_owner
+    Name                              = "EKS_private_subnets"
+    ResourceName                      = "VPC_subnets"
+    Owner                             = var.resource_owner
+    "kubernetes.io/cluster/nginx-eks" = "shared"
   }
 }
 resource "aws_internet_gateway" "gw_eks" {
@@ -135,3 +184,4 @@ resource "aws_nat_gateway" "nat_gw2" {
     Owner        = var.resource_owner
   }
 }
+*/

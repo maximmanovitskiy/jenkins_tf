@@ -23,11 +23,6 @@ apt  install awscli -y
 sleep 15
 cd /home/ubuntu && su ubuntu -c "wget http://localhost:8080/jnlpJars/jenkins-cli.jar"
 su jenkins -c "mkdir -p ~/.aws"
-su jenkins -c "cat <<EOF > /home/jenkins/.aws/credentials
-[default]
-aws_access_key_id = ${AWS_ACCESS_KEY_ID}
-aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}
-EOF"
 su jenkins -c "cat <<EOF > /home/jenkins/.aws/config
 [default]
 region = ${AWS_DEFAULT_REGION}

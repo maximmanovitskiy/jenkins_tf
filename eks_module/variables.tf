@@ -49,3 +49,8 @@ variable "ssh_key_tags" {
 variable "public_key" {
   description = "Public ssh key for node group access"
 }
+variable "nodes_policy_arn" {
+  type        = list(any)
+  description = "ARN of policies to add to the cluster node group"
+  default     = []
+}

@@ -1,4 +1,3 @@
-
 # _____________________________________________________________
 resource "aws_eks_cluster" "eks" {
   name     = var.name
@@ -52,10 +51,6 @@ resource "aws_eks_node_group" "nginx_nodes" {
     ec2_ssh_key = aws_key_pair.eks_node_key.id
   }
 
-  depends_on = [
-    aws_iam_role_policy_attachment.AmazonEKSWorkerNodePolicy,
-    aws_iam_role_policy_attachment.AmazonEKS_CNI_Policy,
-    aws_iam_role_policy_attachment.AmazonEC2ContainerRegistryReadOnly,
-  ]
-  tags = var.node_group_tags
+  depends_on = [aws_iam_role_policy_attachment.node_group_policy_attach]
+  tags       = var.node_group_tags
 }

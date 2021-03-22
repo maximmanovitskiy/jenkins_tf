@@ -23,9 +23,9 @@ resource "aws_ec2_client_vpn_endpoint" "eks_vpn_endp" {
 }
 
 resource "aws_ec2_client_vpn_network_association" "vpn_assoc" {
-  count                  = length(module.eks_subnets.id)
+  count                  = length(module.nat_network.priv_subnet_id)
   client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.eks_vpn_endp.id
-  subnet_id              = module.eks_subnets.id[count.index]
+  subnet_id              = module.nat_network.priv_subnet_id[count.index]
   security_groups        = [aws_security_group.vpn_endpoint_grp.id]
 }
 resource "aws_ec2_client_vpn_authorization_rule" "vpn_auth" {
@@ -36,8 +36,8 @@ resource "aws_ec2_client_vpn_authorization_rule" "vpn_auth" {
 resource "aws_ec2_client_vpn_route" "vpn_route" {
   client_vpn_endpoint_id = aws_ec2_client_vpn_endpoint.eks_vpn_endp.id
   destination_cidr_block = "0.0.0.0/0"
-  count                  = length(module.eks_subnets.id)
-  target_vpc_subnet_id   = module.eks_subnets.id[count.index]
+  count                  = length(module.nat_network.priv_subnet_id)
+  target_vpc_subnet_id   = module.nat_network.priv_subnet_id[count.index]
 }
 
 resource "aws_security_group" "vpn_endpoint_grp" {

@@ -11,51 +11,53 @@ module "jenkins_vpc" {
     Owner        = var.resource_owner
   }
 }
-# Jenkins and NAT IG
-resource "aws_internet_gateway" "gw" {
-  vpc_id = module.jenkins_vpc.id
-  tags = {
+module "nat_network" {
+  source                 = "../nat_module"
+  vpc_id                 = module.jenkins_vpc.id
+  pub_subnet_cidr_block  = var.pub_subnet_cidr_block
+  availability_zones     = data.aws_availability_zones.available.names
+  priv_subnet_cidr_block = var.priv_subnet_cidr_block
+  gw_tags = {
     Name         = "Jenkins_IGW"
     ResourceName = "IGW"
     Owner        = var.resource_owner
   }
-}
-# Route everything to IG
-resource "aws_route_table" "route_table" {
-  vpc_id = module.jenkins_vpc.id
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.gw.id
-  }
-  tags = {
+  ig_route_table_tags = {
     Name         = "ELB route table"
     ResourceName = "Route_table"
     Owner        = var.resource_owner
   }
-}
-# Route ELB subnets to rauting tables -> IG
-resource "aws_route_table_association" "table" {
-  subnet_id      = element(module.elb_subnet.id, count.index)
-  count          = length(var.elb_subnet_cidr_block)
-  route_table_id = aws_route_table.route_table.id
-}
-module "elb_subnet" {
-  source             = "../subnet_module"
-  vpc_id             = module.jenkins_vpc.id
-  subnet_cidr_block  = var.elb_subnet_cidr_block
-  availability_zones = data.aws_availability_zones.available.names
-  map_public_ip      = true
-  tags = {
-    Name         = "ELB_subnet"
+  pub_subnet_tags = {
+    Name         = "Jenkins_pub_subnets"
     ResourceName = "VPC_subnet"
     Owner        = var.resource_owner
   }
+  priv_subnet_tags = {
+    Name         = "Jenkins_priv_subnet"
+    ResourceName = "VPC_subnet"
+    Owner        = var.resource_owner
+  }
+  nat_eip_tags = {
+    Name         = "NAT elastic_ips"
+    ResourceName = "EIP"
+    Owner        = var.resource_owner
+  }
+  nat_table_tags = {
+    Name         = "Jenkins route table"
+    ResourceName = "Route_table"
+    Owner        = var.resource_owner
+  }
+  nat_gw_tags = {
+    Name         = "Jenkins_NAT_GW"
+    ResourceName = "NAT_GW"
+    Owner        = var.resource_owner
+  }
 }
-
+#_____________________________________________________________________________
 # ELB configuration ________________________________
 resource "aws_elb" "jenkins-elb" {
   name            = "jenkins-elb"
-  subnets         = module.elb_subnet.id
+  subnets         = module.nat_network.pub_subnet_id
   security_groups = [aws_security_group.elb_sg.id]
   listener {
     instance_port     = 22
@@ -80,7 +82,7 @@ resource "aws_elb" "jenkins-elb" {
 resource "aws_lb" "jenkins_alb" {
   name               = "jenkins-alb"
   load_balancer_type = "application"
-  subnets            = module.elb_subnet.id
+  subnets            = module.nat_network.pub_subnet_id
   security_groups    = [aws_security_group.alb_sg.id]
   tags = {
     Name         = "Jenkins_alb"

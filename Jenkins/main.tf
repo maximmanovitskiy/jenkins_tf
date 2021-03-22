@@ -58,12 +58,13 @@ resource "aws_security_group" "jenkins_group" {
 }
 
 resource "aws_launch_configuration" "jenkins_LC" {
-  name            = "Jenkins_LC"
-  image_id        = data.aws_ami.ubuntu_ami.id #latest ubuntu ami
-  instance_type   = var.instance_type
-  key_name        = aws_key_pair.jenkins_key.id
-  security_groups = [aws_security_group.jenkins_group.id]
-  user_data       = data.template_file.init.rendered
+  name                 = "Jenkins_LC"
+  image_id             = data.aws_ami.ubuntu_ami.id #latest ubuntu ami
+  instance_type        = var.instance_type
+  key_name             = aws_key_pair.jenkins_key.id
+  security_groups      = [aws_security_group.jenkins_group.id]
+  iam_instance_profile = aws_iam_instance_profile.jenkins_profile.id
+  user_data            = data.template_file.init.rendered
 }
 
 resource "aws_autoscaling_group" "jenkins_autosc_group" {
@@ -71,14 +72,18 @@ resource "aws_autoscaling_group" "jenkins_autosc_group" {
   launch_configuration = aws_launch_configuration.jenkins_LC.name
   min_size             = 1
   max_size             = 1
-  vpc_zone_identifier  = module.elb_subnet.id
+  vpc_zone_identifier  = module.nat_network.priv_subnet_id
   load_balancers       = [aws_elb.jenkins-elb.id]
   target_group_arns    = [aws_lb_target_group.lb_target.arn]
   health_check_type    = "EC2"
+
   lifecycle {
     create_before_destroy = true
   }
-  depends_on = [aws_efs_file_system.efs_jenkins_home, aws_efs_mount_target.jenkins_efs_mount]
+
+  depends_on = [aws_launch_configuration.jenkins_LC,
+  aws_efs_file_system.efs_jenkins_home, aws_efs_mount_target.jenkins_efs_mount]
+
   tags = [
     {
       key                 = "ResourceName"
@@ -110,10 +115,11 @@ resource "aws_efs_file_system" "efs_jenkins_home" {
 
 resource "aws_efs_mount_target" "jenkins_efs_mount" {
   file_system_id  = aws_efs_file_system.efs_jenkins_home.id
-  count           = length(module.elb_subnet.id)
-  subnet_id       = module.elb_subnet.id[count.index]
+  count           = length(module.nat_network.priv_subnet_id)
+  subnet_id       = module.nat_network.priv_subnet_id[count.index]
   security_groups = [aws_security_group.efs_sg.id]
 }
+
 resource "aws_security_group" "efs_sg" {
   name   = "efs_sg"
   vpc_id = module.jenkins_vpc.id
@@ -169,9 +175,7 @@ EOF
 data "template_file" "init" {
   template = file("./jenkins.sh")
   vars = {
-    efs_address           = aws_efs_file_system.efs_jenkins_home.dns_name
-    AWS_ACCESS_KEY_ID     = var.AWS_ACCESS_KEY_ID
-    AWS_SECRET_ACCESS_KEY = var.AWS_SECRET_ACCESS_KEY
-    AWS_DEFAULT_REGION    = var.AWS_DEFAULT_REGION
+    efs_address        = aws_efs_file_system.efs_jenkins_home.dns_name
+    AWS_DEFAULT_REGION = var.AWS_DEFAULT_REGION
   }
 }
