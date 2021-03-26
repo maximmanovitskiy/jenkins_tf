@@ -1,3 +1,4 @@
+echo "Version: ${BUILD_NUMBER}" >> index.html
 docker build -t nginx_test .
 docker tag nginx_test nginx_test:${BUILD_NUMBER}
 docker tag nginx_test nginx_test:latest
