@@ -15,7 +15,7 @@ spec:
       namespace: prod
       labels:
         app: nginx
-        nginx/version: "1.0"
+        nginx/version: "IMAGE_TAG"
     spec:
       containers:
       - name: nginx
@@ -36,7 +36,7 @@ metadata:
     alb.ingress.kubernetes.io/tags: Owner=Maxim_Manovitskiy,Name=Ingress-contr-load-balancer,ResourceName=ALB
   labels:
     app: nginx
-    nginx/version: "1.0"
+    nginx/version: "IMAGE_TAG"
 spec:
   rules:
     - http:
@@ -63,7 +63,7 @@ metadata:
 spec:
   selector:
     app: nginx
-    nginx/version: "1.0"
+    nginx/version: "IMAGE_TAG"
   ports:
     - protocol: TCP
       port: 80
