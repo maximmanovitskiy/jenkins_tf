@@ -10,7 +10,7 @@ terraform {
 provider "aws" {
   region = var.region
 }
-
+data "aws_caller_identity" "current" {}
 data "aws_availability_zones" "available" {
   state = "available"
 }
@@ -175,7 +175,9 @@ EOF
 data "template_file" "init" {
   template = file("./jenkins.sh")
   vars = {
+    account_id         = data.aws_caller_identity.current.account_id
     efs_address        = aws_efs_file_system.efs_jenkins_home.dns_name
     AWS_DEFAULT_REGION = var.AWS_DEFAULT_REGION
+    cluster_name       = var.cluster_name
   }
 }

@@ -30,7 +30,7 @@ resource "aws_iam_role_policy_attachment" "jenkins-policy-attach" {
 
 resource "aws_iam_policy" "jenkins_policy" {
   name        = "jenkins-policy"
-  description = "A policy to work with ECR"
+  description = "A policy to work with ECR, EKS"
 
   policy = <<EOF
 {
@@ -40,7 +40,20 @@ resource "aws_iam_policy" "jenkins_policy" {
          "Sid":"GetAuthorizationToken",
          "Effect":"Allow",
          "Action":[
-            "ecr:GetAuthorizationToken"
+           "eks:DescribeCluster",
+           "eks:ListClusters",
+           "iam:GetOpenIDConnectProvider",
+           "iam:CreateOpenIDConnectProvider",
+           "iam:CreatePolicy",
+           "iam:DetachRolePolicy",
+           "iam:CreateRole",
+           "iam:GetRole",
+           "iam:AttachRolePolicy",
+           "cloudformation:ListStacks",
+           "cloudformation:CreateStack",
+           "cloudformation:DescribeStackEvents",
+           "cloudformation:DescribeStacks",
+           "ecr:GetAuthorizationToken"
          ],
          "Resource":"*"
       },
@@ -53,6 +66,8 @@ resource "aws_iam_policy" "jenkins_policy" {
                 "ecr:InitiateLayerUpload",
                 "ecr:UploadLayerPart",
                 "ecr:CompleteLayerUpload",
+                "ecr:BatchGetImage",
+                "ecr:ListImages",
                 "ecr:PutImage"
          ],
          "Resource":"arn:aws:ecr:us-east-1:482720962971:repository/ecr_images_from_jenkins"

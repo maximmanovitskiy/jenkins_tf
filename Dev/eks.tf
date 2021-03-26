@@ -13,6 +13,8 @@ module "eks" {
   sg_for_access       = [aws_security_group.bastion_sg.id]
   vpc_id              = module.vpc.id
   public_key          = var.public_key
+  working_dir         = var.working_dir
+  command             = var.command
   eks_cluster_tags = {
     Name         = "EKS_nginx_cluster"
     ResourceName = "EKS_cluster"

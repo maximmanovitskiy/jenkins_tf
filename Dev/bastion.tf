@@ -17,24 +17,13 @@ resource "aws_route_table_association" "bast_pub_route" {
 
 resource "aws_instance" "bastion" {
   ami                    = "ami-09ab237af4a23d09e"
-  instance_type          = "t2.micro"
+  instance_type          = var.bastion_type
   subnet_id              = module.bast_subnet.id[0]
   vpc_security_group_ids = [aws_security_group.bastion_sg.id]
-  iam_instance_profile   = aws_iam_instance_profile.bastion_profile1.id
+  iam_instance_profile   = aws_iam_instance_profile.bastion_profile.id
   key_name               = aws_key_pair.bastion_key.id
   user_data              = data.template_file.bastion_script.rendered
   depends_on             = [module.eks]
-  /*
-  provisioner "file" {
-    source      = data.template_file.cluster-iam.rendered
-    destination = "/home/ec2-user/admin-rights.yml"
-  }
-  provisioner "remote-exec" {
-    inline = [
-      "kubectl apply -f /home/ec2-user/admin-rights.yml",
-    ]
-  }
-  */
   tags = {
     Name         = "Bastion_EC2"
     ResourceName = "EC2"
@@ -79,15 +68,13 @@ resource "aws_security_group" "bastion_sg" {
 data "template_file" "bastion_script" {
   template = file("./bastion.sh")
   vars = {
-    account_id            = data.aws_caller_identity.current.account_id
-    bast_ssh_port         = var.bast_ssh_port
-    bast_knock_port1      = var.bast_knock_port1
-    bast_knock_port2      = var.bast_knock_port2
-    bast_knock_port3      = var.bast_knock_port3
-    AWS_ACCESS_KEY_ID     = var.AWS_ACCESS_KEY_ID
-    AWS_SECRET_ACCESS_KEY = var.AWS_SECRET_ACCESS_KEY
-    AWS_DEFAULT_REGION    = var.AWS_DEFAULT_REGION
-    cluster_name          = var.eks_cluster_name
+    account_id         = data.aws_caller_identity.current.account_id
+    bast_ssh_port      = var.bast_ssh_port
+    bast_knock_port1   = var.bast_knock_port1
+    bast_knock_port2   = var.bast_knock_port2
+    bast_knock_port3   = var.bast_knock_port3
+    AWS_DEFAULT_REGION = var.AWS_DEFAULT_REGION
+    cluster_name       = var.eks_cluster_name
   }
 }
 /*

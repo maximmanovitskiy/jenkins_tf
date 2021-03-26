@@ -59,8 +59,6 @@ variable "bastion_acc_ip" {
   type        = list(any)
   description = "CIDR blocks for IP addresses to access bastion"
 }
-variable "AWS_ACCESS_KEY_ID" {}
-variable "AWS_SECRET_ACCESS_KEY" {}
 variable "AWS_DEFAULT_REGION" {}
 
 variable "resource_owner" {
@@ -68,4 +66,13 @@ variable "resource_owner" {
 }
 variable "public_key" {
   description = "Public ssh key for node group/bastion access"
+}
+variable "bastion_type" {
+  description = "Type of EC2 bastion instance"
+}
+variable "command" {
+  description = "Command to execute locally once node group is created"
+}
+variable "working_dir" {
+  description = "Working dir to execute the local command from (node grp)"
 }

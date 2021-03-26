@@ -1,4 +1,4 @@
-resource "aws_iam_instance_profile" "bastion_profile1" {
+resource "aws_iam_instance_profile" "bastion_profile" {
   name = "bastion_profile1"
   role = aws_iam_role.KubernetesAdminRole.name
 }
@@ -43,7 +43,18 @@ resource "aws_iam_policy" "KubernetesAdminPolicy" {
             "Effect": "Allow",
             "Action": [
               "eks:DescribeCluster",
-              "eks:ListClusters"
+              "eks:ListClusters",
+              "iam:GetOpenIDConnectProvider",
+              "iam:CreateOpenIDConnectProvider",
+              "iam:CreatePolicy",
+              "iam:DetachRolePolicy",
+              "iam:CreateRole",
+              "iam:GetRole",
+              "iam:AttachRolePolicy",
+              "cloudformation:ListStacks",
+              "cloudformation:CreateStack",
+              "cloudformation:DescribeStackEvents",
+              "cloudformation:DescribeStacks"
             ],
             "Resource": "*"
         },

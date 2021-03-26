@@ -54,3 +54,11 @@ variable "nodes_policy_arn" {
   description = "ARN of policies to add to the cluster node group"
   default     = []
 }
+variable "command" {
+  description = "Command to execute locally once node group is created"
+  default     = "sleep 0"
+}
+variable "working_dir" {
+  description = "Working dir to execute the local command from (node grp)"
+  default     = "./"
+}

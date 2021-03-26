@@ -53,4 +53,8 @@ resource "aws_eks_node_group" "nginx_nodes" {
 
   depends_on = [aws_iam_role_policy_attachment.node_group_policy_attach]
   tags       = var.node_group_tags
+  provisioner "local-exec" {
+    working_dir = var.working_dir
+    command     = var.command
+  }
 }
