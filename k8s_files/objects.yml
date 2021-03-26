@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: prod
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      namespace: prod
+      labels:
+        app: nginx
+        nginx/version: "1.0"
+    spec:
+      containers:
+      - name: nginx
+        image: 482720962971.dkr.ecr.us-east-1.amazonaws.com/ecr_images_from_jenkins:IMAGE_TAG
+        ports:
+        - containerPort: 80
+
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: nginx-ingress
+  namespace: prod
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/tags: Owner=Maxim_Manovitskiy,Name=Ingress-contr-load-balancer,ResourceName=ALB
+  labels:
+    app: nginx
+    nginx/version: "1.0"
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /*
+            backend:
+              serviceName: "nginx-service-prod"
+              servicePort: 80
+
+---
+apiVersion: v1
+kind: Namespace
+metadata: 
+  name: prod
+  labels:
+     name: prod
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service-prod
+  namespace: prod
+spec:
+  selector:
+    app: nginx
+    nginx/version: "1.0"
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: NodePort
