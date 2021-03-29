@@ -28,10 +28,10 @@ pipeline {
              sh 'eksctl utils associate-iam-oidc-provider \
                --cluster ${CLUSTER_NAME} \
                --approve'
-             sh 'curl -o /home/ec2-user/iam-policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.1.2/docs/install/iam_policy.json'
+             sh 'curl https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.1.2/docs/install/iam_policy.json'
              sh 'aws iam create-policy \
                --policy-name AWSLoadBalancerControllerIAMPolicy \
-               --policy-document file:///home/ec2-user/iam-policy.json'
+               --policy-document file://./iam-policy.json'
              sh 'eksctl utils associate-iam-oidc-provider --cluster=${CLUSTER_NAME} --approve'
              sh 'eksctl create iamserviceaccount \
                --cluster=${CLUSTER_NAME} \
