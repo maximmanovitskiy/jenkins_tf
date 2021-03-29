@@ -3,7 +3,11 @@ pipeline {
     stages {
         stage('Modify yml') {
             steps {
-              sh 'wget https://raw.githubusercontent.com/gitmaks/jenkins_tf/main/k8s_files/*'
+              sh 'wget https://raw.githubusercontent.com/gitmaks/jenkins_tf/main/k8s_files/namespace.yml'
+              sh 'wget https://raw.githubusercontent.com/gitmaks/jenkins_tf/main/k8s_files/deploy.yml'
+              sh 'wget https://raw.githubusercontent.com/gitmaks/jenkins_tf/main/k8s_files/service.yml'
+              sh 'wget https://raw.githubusercontent.com/gitmaks/jenkins_tf/main/k8s_files/ingress.yml'
+              sh 'wget https://raw.githubusercontent.com/gitmaks/jenkins_tf/main/k8s_files/ingress-controller.yaml'
               sh 'sed -i "s/IMAGE_TAG/$IMAGE_TAG/g" *.yml'
               sh 'sed -i "s/ENV/$ENV/g" *.yml'
               sh 'sed -i "s/ACCOUNT_ID/${ACCOUNT_ID}/g" *.yml'
