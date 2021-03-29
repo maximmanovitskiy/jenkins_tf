@@ -1,11 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: nginx-service
+  name: nginx-service-ENV
+  namespace: ENV
 spec:
   selector:
     app: nginx
-    nginx/version: "1.0"
+    nginx/version: "IMAGE_TAG"
   ports:
     - protocol: TCP
       port: 80

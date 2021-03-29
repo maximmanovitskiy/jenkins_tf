@@ -1,7 +1,8 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-deployment
+  name: nginx-ENV
+  namespace: ENV
   labels:
     app: nginx
 spec:
@@ -11,13 +12,13 @@ spec:
       app: nginx
   template:
     metadata:
+      namespace: ENV
       labels:
         app: nginx
-        nginx/version: "1.0"
+        nginx/version: "IMAGE_TAG"
     spec:
       containers:
       - name: nginx
-        image: ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/ecr_images_from_jenkins:latest
+        image: ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/ecr_images_from_jenkins:IMAGE_TAG
         ports:
         - containerPort: 80
-
