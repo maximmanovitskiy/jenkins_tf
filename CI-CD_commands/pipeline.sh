@@ -17,7 +17,10 @@ pipeline {
          stage('Apply yml') {
            steps {
              sh 'aws eks update-kubeconfig --name nginx-eks'
-             sh 'kubectl apply -f namespace.yml deploy.yml service.yml ingress.yml'
+             sh 'kubectl apply -f namespace.yml'
+             sh 'kubectl apply -f deploy.yml'
+             sh 'kubectl apply -f service.yml'
+             sh 'kubectl apply -f ingress.yml'
            }
          }
          stage('Apply Ingress controller') {
