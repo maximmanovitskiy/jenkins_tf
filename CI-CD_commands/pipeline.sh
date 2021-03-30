@@ -2,6 +2,8 @@ properties([
   parameters([
     [$class: 'ChoiceParameter',
       choiceType: 'PT_SINGLE_SELECT',
+      filterLength: 1,
+      filterable: false, 
       name: 'TAG_ID',
       script: [
         $class: 'GroovyScript',
@@ -27,6 +29,8 @@ return ecr_images.reverse()
     ],
     [$class: 'ChoiceParameter',
        choiceType: 'PT_SINGLE_SELECT',
+       filterLength: 1,
+       filterable: false,
        name: 'ENV',
        script: [
          $class: 'GroovyScript',
