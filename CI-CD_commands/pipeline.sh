@@ -45,7 +45,7 @@ pipeline {
         stage('Modify yml') {
             steps {
               sh '''
-                mkdir "$ENV-${BUILD_NUMBER}"
+                mkdir $ENV-${BUILD_NUMBER}
                 wget -O $ENV-${BUILD_NUMBER}/namespace.yml \
                 https://raw.githubusercontent.com/gitmaks/jenkins_tf/main/k8s_files/namespace.yml
                 wget -O $ENV-${BUILD_NUMBER}/deploy.yml \
