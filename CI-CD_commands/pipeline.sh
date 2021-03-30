@@ -1,4 +1,11 @@
 properties([
+  [$class: 'BuildDiscarderProperty',
+    strategy: [
+      $class: 'LogRotator',
+      numToKeepStr: '10',
+      artifactNumToKeepStr: '4'
+    ]
+  ],
   parameters([
     [$class: 'ChoiceParameter',
       choiceType: 'PT_SINGLE_SELECT',
