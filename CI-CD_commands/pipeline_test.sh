@@ -17,17 +17,16 @@ properties([
               ]
              ]
             ],
-	    [$class: 'ChoiceParameter',
-      choiceType: 'PT_SINGLE_SELECT',
-      filterLength: 1,
-      filterable: false,
-      name: 'IMAGE_TAG',
-      script: [
-        $class: 'GroovyScript',
-        script: [
-            classpath: [],
-            sandbox: false,
-            script: '''
+
+	                [$class: 'ChoiceParameter',
+                          choiceType: 'PT_SINGLE_SELECT',
+                          name: 'IMAGE_TAG',
+                          script: [
+                              $class: 'GroovyScript',
+                              script: [
+                                classpath: [],
+                                sandbox: false,
+                                script: '''
 import groovy.json.JsonSlurper
 
 def ecr_images_json = ['bash', '-c', "aws ecr list-images --repository-name ecr_images_from_jenkins --filter tagStatus=TAGGED --region us-east-1"].execute().text
@@ -44,8 +43,8 @@ return ecr_images.reverse()
         ]
       ]
     ]     
-          ])
-         ])
+ ])
+])
 
 pipeline {
     agent any
