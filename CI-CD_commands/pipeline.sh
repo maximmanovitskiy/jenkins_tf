@@ -5,7 +5,7 @@ properties([
       choiceType: 'PT_SINGLE_SELECT',
       name: 'TAG_ID',
       script: [
-        $class: 'ScriptlerScript',
+        $class: 'GroovyScript',
         script: [
             classpath: [], 
             sandbox: false, 
@@ -29,7 +29,7 @@ properties([
       choiceType: 'PT_SINGLE_SELECT',
       name: 'ENV',
       script: [
-        $class: 'ScriptlerScript',
+        $class: 'GroovyScript',
         script: [
             classpath: [], 
             sandbox: false, 
