@@ -16,7 +16,34 @@ properties([
                                script: "return['green:selected', 'blue']"
               ]
              ]
-            ]
+            ],
+	    [$class: 'ChoiceParameter',
+      choiceType: 'PT_SINGLE_SELECT',
+      filterLength: 1,
+      filterable: false,
+      name: 'IMAGE_TAG',
+      script: [
+        $class: 'GroovyScript',
+        script: [
+            classpath: [],
+            sandbox: false,
+            script: '''
+import groovy.json.JsonSlurper
+
+def ecr_images_json = ['bash', '-c', "aws ecr list-images --repository-name ecr_images_from_jenkins --filter tagStatus=TAGGED --region us-east-1"].execute().text
+def data = new JsonSlurper().parseText(ecr_images_json)
+def ecr_images = [];
+data.imageIds.each {
+ if ( "$it.imageTag".length() >= 1 )  {
+       ecr_images.push("$it.imageTag")
+    }
+}
+
+return ecr_images.reverse()
+            '''
+        ]
+      ]
+    ]     
           ])
          ])
 
