@@ -23,6 +23,11 @@ properties([
                           name: 'IMAGE_TAG',
                           script: [
                               $class: 'GroovyScript',
+			      fallbackScript: [
+                               classpath: [],
+                               sandbox: false,
+                               script: 'return ["error"]'
+                              ],
                               script: [
                                 classpath: [],
                                 sandbox: false,
