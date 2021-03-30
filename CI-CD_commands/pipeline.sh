@@ -31,7 +31,6 @@ return ecr_images.reverse()
        script: [
          $class: 'GroovyScript',
          script: [
-            classpath: [], 
             sandbox: false, 
             script: "return['green:selected','blue']"
 	]
