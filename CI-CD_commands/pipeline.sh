@@ -35,7 +35,12 @@ return ecr_images.reverse()
         script: [
             classpath: [], 
             sandbox: false, 
-            script: "return['green:selected', 'blue']"
+            script: '''
+	    return[
+	    'green:selected',
+	    'blue'
+	    ]
+	    '''
 	]
      ]
    ]
