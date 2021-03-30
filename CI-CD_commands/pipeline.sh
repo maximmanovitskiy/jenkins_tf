@@ -17,8 +17,8 @@ def ecr_images = [];
 data.imageIds.each {
  if ( "$it.imageTag".length() >= 1 )  {
        ecr_images.push("$it.imageTag")
-      }
     }
+}
 
 return ecr_images.reverse()
 	    '''
