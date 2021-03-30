@@ -44,7 +44,7 @@ data.imageIds.each {
 }
 
 return ecr_images.reverse()
-            '''
+                                        '''
         ]
       ]
     ]     
