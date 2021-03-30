@@ -35,12 +35,7 @@ return ecr_images.reverse()
         script: [
             classpath: [], 
             sandbox: false, 
-            script: '''
-	    return[
-	    'green:selected',
-	    'blue'
-	    ]
-	    '''
+            script: "return['green:selected','blue']
 	]
      ]
    ]
@@ -52,6 +47,7 @@ pipeline {
         stage('Modify yml') {
             steps {
               sh '''
+	        echo "$ENV+$TAG_ID"
                 mkdir $ENV-${BUILD_NUMBER}
                 wget -O $ENV-${BUILD_NUMBER}/namespace.yml \
                 https://raw.githubusercontent.com/gitmaks/jenkins_tf/main/k8s_files/namespace.yml
