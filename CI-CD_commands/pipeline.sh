@@ -1,7 +1,6 @@
 properties([
   parameters([
-    [
-      $class: 'ChoiceParameter',
+    [$class: 'ChoiceParameter',
       choiceType: 'PT_SINGLE_SELECT',
       name: 'TAG_ID',
       script: [
@@ -26,13 +25,12 @@ return ecr_images.reverse()
 	]
       ]
     ],
-    [
-      $class: 'ChoiceParameter',
-      choiceType: 'PT_SINGLE_SELECT',
-      name: 'ENV',
-      script: [
-        $class: 'GroovyScript',
-        script: [
+    [$class: 'ChoiceParameter',
+       choiceType: 'PT_SINGLE_SELECT',
+       name: 'ENV',
+       script: [
+         $class: 'GroovyScript',
+         script: [
             classpath: [], 
             sandbox: false, 
             script: "return['green:selected','blue']"
