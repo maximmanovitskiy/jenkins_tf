@@ -30,8 +30,14 @@ return ecr_images.reverse()
        name: 'ENV',
        script: [
          $class: 'GroovyScript',
+  	 fallbackScript: [
+                classpath: [],
+                sandbox: false,
+                script: 'return ["error"]'
+                ],
          script: [
-            sandbox: false, 
+            classpath: [],
+	    sandbox: false, 
             script: "return['green:selected','blue']"
 	]
      ]
