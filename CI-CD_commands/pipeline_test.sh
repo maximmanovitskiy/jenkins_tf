@@ -1,10 +1,4 @@
-pipeline {
-    agent any
-    stages {
-        stage('Parameters') {
-            steps {
-               script {
-                 properties([
+properties([
                      parameters([
                        [$class: 'ChoiceParameter',
                          choiceType: 'PT_SINGLE_SELECT',
@@ -25,9 +19,10 @@ pipeline {
             ]
           ])
          ])
-       }
-      }
-    }
+
+pipeline {
+    agent any
+    stages {
         stage('Modify yml') {
             steps {
               sh '''

@@ -4,7 +4,7 @@ properties([
       choiceType: 'PT_SINGLE_SELECT',
       filterLength: 1,
       filterable: false, 
-      name: 'TAG_ID',
+      name: 'IMAGE_TAG',
       script: [
         $class: 'GroovyScript',
         script: [
