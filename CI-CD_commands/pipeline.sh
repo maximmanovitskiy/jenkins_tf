@@ -2,8 +2,7 @@ properties([
   [$class: 'BuildDiscarderProperty',
     strategy: [
       $class: 'LogRotator',
-      numToKeepStr: '10',
-      artifactNumToKeepStr: '4'
+      numToKeepStr: '4',
     ]
   ],
   parameters([
@@ -61,18 +60,8 @@ pipeline {
         stage('Modify yml') {
             steps {
               sh '''
-	        echo "$ENV+$TAG_ID"
                 mkdir $ENV-${BUILD_NUMBER}
-                wget -O $ENV-${BUILD_NUMBER}/namespace.yml \
-                https://raw.githubusercontent.com/gitmaks/jenkins_tf/main/k8s_files/namespace.yml
-                wget -O $ENV-${BUILD_NUMBER}/deploy.yml \
-                https://raw.githubusercontent.com/gitmaks/jenkins_tf/main/k8s_files/deploy.yml
-                wget -O $ENV-${BUILD_NUMBER}/service.yml \
-                https://raw.githubusercontent.com/gitmaks/jenkins_tf/main/k8s_files/service.yml
-                wget -O $ENV-${BUILD_NUMBER}/ingress.yml \
-                https://raw.githubusercontent.com/gitmaks/jenkins_tf/main/k8s_files/ingress.yml
-                wget -O $ENV-${BUILD_NUMBER}/ingress-controller.yaml \
-                https://raw.githubusercontent.com/gitmaks/jenkins_tf/main/k8s_files/ingress-controller.yaml
+                git clone https://github.com/gitmaks/k8s/ $ENV-${BUILD_NUMBER}
                 sed -i "s/IMAGE_TAG/$IMAGE_TAG/g" $ENV-${BUILD_NUMBER}/*.yml
                 sed -i "s/ENV/$ENV/g" $ENV-${BUILD_NUMBER}/*.yml
                 sed -i "s/ACCOUNT_ID/${ACCOUNT_ID}/g" $ENV-${BUILD_NUMBER}/*.yml
