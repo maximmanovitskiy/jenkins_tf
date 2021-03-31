@@ -16,8 +16,7 @@ properties([
         script: [
             classpath: [], 
             sandbox: false, 
-            script: '''
-import groovy.json.JsonSlurper
+            script: '''import groovy.json.JsonSlurper
 
 def ecr_images_json = ['bash', '-c', "aws ecr list-images --repository-name ecr_images_from_jenkins --filter tagStatus=TAGGED --region us-east-1"].execute().text
 def data = new JsonSlurper().parseText(ecr_images_json)
