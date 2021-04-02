@@ -46,8 +46,8 @@ pipeline {
                 ${ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/ecr_images_from_jenkins:latest
                 sudo docker push ${ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/ecr_images_from_jenkins:latest
               '''
-              build job: 'Deploy', parameters: [[$class: 'StringParameterValue', name: 'IMAGE_TAG', value: 'latest'],
-              [$class: 'StringParameterValue', name: 'ENV', value: 'green']], wait: false
+              build job: 'Deploy', parameters: [[$class: 'InheritableStringParameterValue', name: 'IMAGE_TAG', value: 'latest'],
+              [$class: 'InheritableStringParameterValue', name: 'ENV', value: 'green']], wait: false
            }
          }
     }
