@@ -46,7 +46,8 @@ pipeline {
                 sudo docker tag "$(sudo docker images --filter=reference=nginx_test:latest -q)" \
                 ${ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/ecr_images_from_jenkins:latest
                 sudo docker push ${ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/ecr_images_from_jenkins:latest
-             '''
+              '''
+              build job: 'Deploy', parameters: [[$class: 'StringParameterValue', name: 'IMAGE_TAG', value: 'green']]
            }
          }
     }
