@@ -107,7 +107,7 @@ pipeline {
               sh '''
                kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.0.2/cert-manager.yaml
                sed -i "s/CLUSTER_NAME/${CLUSTER_NAME}/g" $ENV-${BUILD_NUMBER}/ingress-controller.yaml
-	       sleep 5
+	       sleep 10
                kubectl apply -f $ENV-${BUILD_NUMBER}/ingress-controller.yaml
              '''
            }
