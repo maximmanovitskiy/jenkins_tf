@@ -15,7 +15,6 @@ pipeline {
                   ]]
                 ])
               sh '''
-                git clone https://github.com/gitmaks/jenkins_project
                 echo "Version: ${BUILD_NUMBER}" >> index.html
               '''
             }
