@@ -33,7 +33,7 @@ pipeline {
              sh '''
                sudo docker run -d -p 1234:80 nginx_test:${BUILD_NUMBER}
 	       sleep 3
-	       curl localhost:1234 || sudo docker stop "$(sudo docker ps -q)" && echo Failed
+	       curl localhost:1234 || sudo docker stop "$(sudo docker ps -q)"
 	       sudo docker stop "$(sudo docker ps -q)" && echo Success
              '''
            }
