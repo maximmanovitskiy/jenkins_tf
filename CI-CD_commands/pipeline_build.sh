@@ -34,7 +34,7 @@ pipeline {
                sudo docker run -d -p 1234:80 nginx_test:${BUILD_NUMBER}
 	       sleep 3
 	       curl localhost:1234 || sudo docker stop "$(sudo docker ps -q)"
-	       sudo docker exec -d "$(sudo docker ps -q)" 'nginx -t' || sudo docker stop "$(sudo docker ps -q)"
+	       sudo docker exec -d "$(sudo docker ps -q)" '/usr/bin/nginx -v' || sudo docker stop "$(sudo docker ps -q)"
 	       sudo docker stop "$(sudo docker ps -q)" && echo Success
              '''
            }
