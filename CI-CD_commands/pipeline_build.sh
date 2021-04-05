@@ -35,9 +35,9 @@ pipeline {
 	       curl localhost:1234
                if [ $? -eq 0 ]
                then
-                   sudo docker stop "$(sudo docker images --filter=reference=nginx_test:${BUILD_NUMBER} -q)" && exit 0
+		   sudo docker stop "$(sudo docker ps -q)" && exit 0
                else
-                   sudo docker stop "$(sudo docker images --filter=reference=nginx_test:${BUILD_NUMBER} -q)" && exit 1
+                   sudo docker stop "$(sudo docker ps -q)" && exit 1
                fi
              '''
            }
