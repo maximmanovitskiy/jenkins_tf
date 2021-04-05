@@ -32,13 +32,8 @@ pipeline {
            steps {
              sh '''
                sudo docker run -d -p 1234:80 nginx_test:${BUILD_NUMBER}
-	       curl localhost:1234
-               if [ $? -eq 0 ]
-               then
-		   sudo docker stop "$(sudo docker ps -q)" && exit 0
-               else
-                   sudo docker stop "$(sudo docker ps -q)" && exit 1
-               fi
+	       curl localhost:1234 || sudo docker stop "$(sudo docker ps -q)" && echo Failed
+	       sudo docker stop "$(sudo docker ps -q)" && echo Success
              '''
            }
          }
