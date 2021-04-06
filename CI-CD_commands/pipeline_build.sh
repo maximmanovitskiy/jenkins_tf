@@ -59,7 +59,7 @@ pipeline {
               '''
               build job: 'Deploy',
                parameters: [
-                string(name: 'IMAGE_TAG', value: 'latest'),
+                string(name: 'IMAGE_TAG', value: "${BUILD_NUMBER}"),
                 string(name: 'ENV', value: 'green')
                 ],
                wait: false
