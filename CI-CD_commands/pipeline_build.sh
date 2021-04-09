@@ -2,8 +2,7 @@ properties([
   pipelineTriggers([
    [$class: 'GenericTrigger',
      genericVariables: [
-       [ key: 'ref', value: '$.ref' ],
-       [ key: 'pr_from_sha', value: '$.pull_request.head.sha' ]
+       [ key: 'ref', value: '$.ref' ]
      ],
      token: 'push',
      regexpFilterText: '$ref',
