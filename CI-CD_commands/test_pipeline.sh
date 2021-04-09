@@ -61,7 +61,7 @@ pipeline {
                           description: 'Some example description', 
                           repo: 'jenkins_project', 
                           sha: "$pr_from_sha",
-			  status: 'FAILURE',
+			  status: 'SUCCESS',
                           targetUrl: "$JENKINS_URL"
             }
         }
