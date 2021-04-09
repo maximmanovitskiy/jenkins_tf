@@ -1,7 +1,12 @@
 properties([
   pipelineTriggers([
    [$class: 'GenericTrigger',
+    genericVariables: [
+       [ key: 'ref', value: '$.ref' ]
+     ],
      token: 'push',
+     regexpFilterText: '$ref',
+     regexpFilterExpression: '^(refs/heads/main)$'
     ]
    ])
 ])  
