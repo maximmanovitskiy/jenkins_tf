@@ -1,4 +1,10 @@
-properties([pipelineTriggers([githubPush()])])
+properties([
+  pipelineTriggers([
+   [$class: 'GenericTrigger',
+     token: 'push',
+    ]
+   ])
+])  
 pipeline {
     agent {
       label 'build'
