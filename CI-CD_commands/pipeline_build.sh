@@ -33,7 +33,6 @@ pipeline {
          stage('Docker build') {
            steps {
              sh '''
-	       echo $ref
                sudo docker build -t nginx_test .
                sudo docker tag nginx_test nginx_test:${BUILD_NUMBER}
                sudo docker tag nginx_test nginx_test:latest
