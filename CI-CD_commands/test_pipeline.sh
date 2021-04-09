@@ -3,7 +3,7 @@ properties([
    [$class: 'GenericTrigger',
      genericVariables: [
        [ key: 'action', value: '$.action' ],
-       [ key: 'ref', value: '$.ref' ],
+       [ key: 'pr_from_ref', value: '$.pull_request.head.ref' ],
        [ key: 'pr_from_sha', value: '$.pull_request.head.sha' ]
      ],
      token: 'build-job',
@@ -33,7 +33,7 @@ pipeline {
         stage('First test') {
             steps {
               sh '''
-                git merge origin/$ref
+                git merge origin/$pr_from_ref
                 grep -i "hello" index.html
                 echo $pr_from_sha
               '''
