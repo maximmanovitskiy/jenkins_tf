@@ -60,7 +60,8 @@ pipeline {
                           credentialsId: 'github_update',
                           description: 'Some example description', 
                           repo: 'jenkins_project', 
-                          sha: "$pr_from_sha", 
+                          sha: "$pr_from_sha",
+			  status: 'FAILED',
                           targetUrl: "$JENKINS_URL"
             }
         }
