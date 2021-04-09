@@ -30,22 +30,42 @@ pipeline {
                 ])
             }
         }
-        stage('First test') {
+        stage('Success test') {
             steps {
+	     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
               sh '''
                 git merge origin/$pr_from_ref
                 grep -i "hello" index.html
               '''
-              githubNotify account: 'gitmaks', 
-                           context: 'Final Test', 
-                           credentialsId: 'github_update',
-                           description: 'Some example description', 
-                           repo: 'jenkins_project', 
-                           sha: "$pr_from_sha", 
-                           status: 'SUCCESS', 
-                           targetUrl: "$JENKINS_URL"
+      }
+             githubNotify account: 'gitmaks', 
+                          context: 'Final Test', 
+                          credentialsId: 'github_update',
+                          description: 'Some example description', 
+                          repo: 'jenkins_project', 
+                          sha: "$pr_from_sha", 
+                          status: 'SUCCESS', 
+                          targetUrl: "$JENKINS_URL"
             }
-        }        
+        }
+        stage('Failed test') {
+            steps {
+             catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+              sh '''
+                grep -i "goodbye" index.html
+              '''
+      }
+             githubNotify account: 'gitmaks', 
+                          context: 'Final Test', 
+                          credentialsId: 'github_update',
+                          description: 'Some example description', 
+                          repo: 'jenkins_project', 
+                          sha: "$pr_from_sha", 
+                          status: 'SUCCESS', 
+                          targetUrl: "$JENKINS_URL"
+            }
+        }
+
     }
 }
 
