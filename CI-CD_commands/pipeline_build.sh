@@ -6,7 +6,7 @@ properties([
      ],
      token: 'push',
      regexpFilterText: '$ref',
-     regexpFilterExpression: '^(refs/heads/main)$'
+     regexpFilterExpression: '^(refs/heads/main|refs/heads/feature/.+)$'
     ]
    ])
 ])  
