@@ -3,7 +3,7 @@ properties([
    [$class: 'GenericTrigger',
      genericVariables: [
        [ key: 'action', value: '$.action' ],
-       [ key: 'pull_request_number', value: '$.pull_request.number' ],
+       [ key: 'ref', value: '$.ref' ],
        [ key: 'pr_from_sha', value: '$.pull_request.head.sha' ]
      ],
      token: 'build-job',
@@ -33,7 +33,7 @@ pipeline {
         stage('First test') {
             steps {
               sh '''
-                git merge origin/test
+                git merge origin/$ref
                 grep -i "hello" index.html
                 echo $pr_from_sha
               '''
@@ -44,7 +44,7 @@ pipeline {
                            repo: 'jenkins_project', 
                            sha: "$pr_from_sha", 
                            status: 'SUCCESS', 
-                           targetUrl: 'http://jenkins-alb-1649148192.us-east-1.elb.amazonaws.com'
+                           targetUrl: "$JENKINS_URL"
             }
         }        
     }
