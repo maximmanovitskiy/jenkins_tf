@@ -39,7 +39,7 @@ pipeline {
               '''
       }
              githubNotify account: 'gitmaks', 
-                          context: 'Final Test', 
+                          context: 'Success Test', 
                           credentialsId: 'github_update',
                           description: 'Some example description', 
                           repo: 'jenkins_project', 
@@ -56,7 +56,7 @@ pipeline {
               '''
       }
              githubNotify account: 'gitmaks', 
-                          context: 'Final Test', 
+                          context: 'Failed Test', 
                           credentialsId: 'github_update',
                           description: 'Some example description', 
                           repo: 'jenkins_project', 
