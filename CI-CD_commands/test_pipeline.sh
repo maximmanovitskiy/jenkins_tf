@@ -33,10 +33,8 @@ pipeline {
         stage('First test') {
             steps {
               sh '''
-	        echo $pr_from_ref
                 git merge origin/$pr_from_ref
                 grep -i "hello" index.html
-                echo $pr_from_sha
               '''
               githubNotify account: 'gitmaks', 
                            context: 'Final Test', 
