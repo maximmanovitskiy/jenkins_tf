@@ -32,7 +32,7 @@ pipeline {
         }
         stage('Success test') {
 	    environment {
-	      RESULT=SUCCESS
+	      RESULT = 'SUCCESS'
       }
             steps {
 	     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
@@ -59,7 +59,7 @@ pipeline {
         }
         stage('Failed test') {
 	    environment {
-              RESULT=SUCCESS
+              RESULT = 'SUCCESS'
       }
             steps {
              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
