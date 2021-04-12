@@ -57,8 +57,7 @@ pipeline {
         }
         stage('Failed test') {
 	    environment {
-              RESULT = """${sh(
-	      returnStdout: true,
+              RESULT = """${sh(returnStdout: true,
 	      script: 'grep -iq "goodbye" index.html || echo "FAILURE")}"""
       }
             steps {
