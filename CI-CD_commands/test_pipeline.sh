@@ -63,7 +63,7 @@ pipeline {
             steps {
              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
               sh '''
-                grep -iq "goodbye" index.html
+                grep -iq "goodbye" index.html || exit 0
               '''
       }
              githubNotify account: 'gitmaks', 
