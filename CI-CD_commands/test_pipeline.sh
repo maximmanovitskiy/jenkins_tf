@@ -36,7 +36,7 @@ pipeline {
               sh '''
                 git merge origin/$pr_from_ref
                 grep -i "hello" index.html
-		if [ $? == 0 ]
+		if [ $? -eq 0 ]
 		then 
 		    export RESULT=SUCCESS
 		else 
@@ -59,7 +59,7 @@ pipeline {
              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
               sh '''
                 grep -i "goodbye" index.html
-		if [ $? == 0 ]
+		if [ $? -eq 0 ]
                 then
                     export RESULT=SUCCESS
                 else
