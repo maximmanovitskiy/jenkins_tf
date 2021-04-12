@@ -38,13 +38,8 @@ pipeline {
 	     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
               sh '''
                 git merge origin/$pr_from_ref
-                grep -i "hello" index.html
-		if [ $? -eq 0 ]
-		then 
-		    export RESULT=SUCCESS
-		else 
-		    export RESULT=FAILURE
-		fi
+                grep -i "hello" index.html || \
+		export RESULT=FAILURE
               '''
       }
              githubNotify account: 'gitmaks', 
@@ -64,13 +59,8 @@ pipeline {
             steps {
              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
               sh '''
-                grep -i "goodbye" index.html
-		if [ $? -eq 0 ]
-                then
-                    export RESULT=SUCCESS
-                else
-                    export RESULT=FAILURE
-                fi
+                grep -i "goodbye" index.html || \
+                export RESULT=FAILURE
               '''
       }
              githubNotify account: 'gitmaks', 
