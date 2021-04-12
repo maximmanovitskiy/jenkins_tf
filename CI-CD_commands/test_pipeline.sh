@@ -36,6 +36,12 @@ pipeline {
               sh '''
                 git merge origin/$pr_from_ref
                 grep -i "hello" index.html
+		if [ $? == 0 ]
+		then 
+		    export RESULT=SUCCESS
+		else 
+		    export RESULT=FAILURE
+		fi
               '''
       }
              githubNotify account: 'gitmaks', 
@@ -44,7 +50,7 @@ pipeline {
                           description: 'Some example description', 
                           repo: 'jenkins_project', 
                           sha: "$pr_from_sha", 
-                          status: 'SUCCESS',
+                          status: "$RESULT",
                           targetUrl: "$JENKINS_URL"
             }
         }
@@ -53,6 +59,13 @@ pipeline {
              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
               sh '''
                 grep -i "goodbye" index.html
+		if [ $? == 0 ]
+                then
+                    export RESULT=SUCCESS
+                else
+                    export RESULT=FAILURE
+                fi
+
               '''
       }
              githubNotify account: 'gitmaks', 
@@ -61,7 +74,7 @@ pipeline {
                           description: 'Some example description', 
                           repo: 'jenkins_project', 
                           sha: "$pr_from_sha",
-			  status: 'FAILURE',
+			  status: "$RESULT",
                           targetUrl: "$JENKINS_URL"
             }
         }
