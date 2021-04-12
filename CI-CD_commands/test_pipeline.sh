@@ -31,6 +31,9 @@ pipeline {
             }
         }
         stage('Success test') {
+	    environment {
+	      RESULT=SUCCESS
+      }
             steps {
 	     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
               sh '''
@@ -38,9 +41,9 @@ pipeline {
                 grep -i "hello" index.html
 		if [ $? -eq 0 ]
 		then 
-		    RESULT=SUCCESS
+		    export RESULT=SUCCESS
 		else 
-		    RESULT=FAILURE
+		    export RESULT=FAILURE
 		fi
               '''
       }
@@ -50,20 +53,23 @@ pipeline {
                           description: 'Some example description', 
                           repo: 'jenkins_project', 
                           sha: "$pr_from_sha", 
-                          status: "$stageResult",
+                          status: "$RESULT",
                           targetUrl: "$JENKINS_URL"
             }
         }
         stage('Failed test') {
+	    environment {
+              RESULT=SUCCESS
+      }
             steps {
              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
               sh '''
                 grep -i "goodbye" index.html
 		if [ $? -eq 0 ]
                 then
-                    RESULT_TEST=SUCCESS
+                    export RESULT=SUCCESS
                 else
-                    RESULT_TEST=FAILURE
+                    export RESULT=FAILURE
                 fi
               '''
       }
@@ -73,7 +79,7 @@ pipeline {
                           description: 'Some example description', 
                           repo: 'jenkins_project', 
                           sha: "$pr_from_sha",
-			  status: "$stageResult",
+			  status: "$RESULT",
                           targetUrl: "$JENKINS_URL"
             }
         }
