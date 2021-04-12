@@ -38,9 +38,9 @@ pipeline {
                 grep -i "hello" index.html
 		if [ $? -eq 0 ]
 		then 
-		    export RESULT=SUCCESS
+		    RESULT=SUCCESS
 		else 
-		    export RESULT=FAILURE
+		    RESULT=FAILURE
 		fi
               '''
       }
@@ -50,7 +50,7 @@ pipeline {
                           description: 'Some example description', 
                           repo: 'jenkins_project', 
                           sha: "$pr_from_sha", 
-                          status: "$RESULT",
+                          status: "$RESULT_TEST",
                           targetUrl: "$JENKINS_URL"
             }
         }
@@ -61,9 +61,9 @@ pipeline {
                 grep -i "goodbye" index.html
 		if [ $? -eq 0 ]
                 then
-                    export RESULT=SUCCESS
+                    RESULT_TEST=SUCCESS
                 else
-                    export RESULT=FAILURE
+                    RESULT_TEST=FAILURE
                 fi
 
               '''
@@ -74,7 +74,7 @@ pipeline {
                           description: 'Some example description', 
                           repo: 'jenkins_project', 
                           sha: "$pr_from_sha",
-			  status: "$RESULT",
+			  status: "$RESULT_TEST",
                           targetUrl: "$JENKINS_URL"
             }
         }
