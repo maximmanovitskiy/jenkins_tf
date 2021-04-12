@@ -18,7 +18,7 @@ pipeline {
       label 'build'
     }
     environment {
-       RESULT = 'FAILURE'
+       RESULT = 'SUCCESS'
     }
     stages {
          stage('Get files') {
@@ -58,7 +58,7 @@ pipeline {
         stage('Failed test') {
 	    environment {
               RESULT = """${sh(returnStdout: true,
-	      script: 'grep -iq "goodbye" index.html && echo "SUCCESS"')}"""
+	      script: 'grep -iq "goodbye" index.html || echo "FAILURE"')}"""
       }
             steps {
              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
