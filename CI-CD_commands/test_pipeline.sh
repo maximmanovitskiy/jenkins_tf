@@ -17,6 +17,9 @@ pipeline {
     agent {
       label 'build'
     }
+    environment {
+       RESULT = 'FAILURE'
+    }
     stages {
          stage('Get files') {
             steps {
@@ -55,16 +58,8 @@ pipeline {
         stage('Failed test') {
 	    environment {
               RESULT = """${sh(
-                returnStdout: true,
-                script: 'grep -iq "goodbye" index.html || \
-			if [ $? -eq 0 ]
-			then
-				echo "SUCCESS"
-			else
-				echo "FAILURE"
-			fi
-		'
-            )}"""
+	      returnStdout: true,
+	      script: 'grep -iq "goodbye" index.html || echo "FAILURE")}"""
       }
             steps {
              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
