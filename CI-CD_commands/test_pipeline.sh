@@ -50,7 +50,7 @@ pipeline {
                           description: 'Some example description', 
                           repo: 'jenkins_project', 
                           sha: "$pr_from_sha", 
-                          status: "$RESULT_TEST",
+                          status: "$stageResult",
                           targetUrl: "$JENKINS_URL"
             }
         }
@@ -65,7 +65,6 @@ pipeline {
                 else
                     RESULT_TEST=FAILURE
                 fi
-
               '''
       }
              githubNotify account: 'gitmaks', 
@@ -74,7 +73,7 @@ pipeline {
                           description: 'Some example description', 
                           repo: 'jenkins_project', 
                           sha: "$pr_from_sha",
-			  status: "$RESULT_TEST",
+			  status: "$stageResult",
                           targetUrl: "$JENKINS_URL"
             }
         }
