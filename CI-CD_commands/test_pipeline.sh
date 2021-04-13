@@ -78,6 +78,7 @@ pipeline {
                     gitPost ("Tests", "FAILED #$BUILD_NUMBER", "FAILURE")
                 }
             }
+}
             stage('Success test') {
             steps {
              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
@@ -95,9 +96,9 @@ pipeline {
                     gitPost ("Tests", "FAILED #$BUILD_NUMBER", "FAILURE")
                 }
             }
-        }
+       }
 
   }
  }
-}
+
 
