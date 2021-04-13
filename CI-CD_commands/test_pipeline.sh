@@ -57,8 +57,6 @@ pipeline {
         }
         stage('Failed test') {
 	    environment {
-              RESULT = """${sh(returnStdout: true,
-	      script: 'grep -iq "goodbye" index.html || echo "SUCCESS"')}"""
       }
             steps {
              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
@@ -66,6 +64,9 @@ pipeline {
                 grep -iq "goodbye" index.html || exit 0
               '''
       }
+def gitPost (CONTEXT, DESCRIPTION, STATUS) {
+    script {
+        if ( COMMENT == "true" ) {
              githubNotify account: 'gitmaks', 
                           context: 'Failed Test', 
                           credentialsId: 'github_update',
@@ -75,9 +76,11 @@ pipeline {
 			  status: "${RESULT}",
                           targetUrl: "$JENKINS_URL"
             }
-        }
-
+          }
+         }
+       }
     }
+  }
 }
 
 
