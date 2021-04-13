@@ -78,27 +78,8 @@ pipeline {
                     gitPost ("Failed test", "FAILED #$BUILD_NUMBER", "FAILURE")
                 }
             }
-}
-            stage('Success test1') {
-            steps {
-             catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-              sh '''
-                git merge origin/$pr_from_ref
-                grep -qi "hello" index.html
-              '''
-      }
-}
-            post {
-                success {
-                    gitPost ("Success test1", "SUCCESS #$BUILD_NUMBER", "SUCCESS")
-                }
-                failure {
-                    gitPost ("Success test1", "FAILED #$BUILD_NUMBER", "FAILURE")
-                }
-            }
        }
-
-  }
- }
+   }
+}
 
 
