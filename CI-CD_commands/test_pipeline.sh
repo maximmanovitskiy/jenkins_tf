@@ -79,7 +79,7 @@ pipeline {
                 }
             }
 }
-            stage('Success test') {
+            stage('Success test1') {
             steps {
              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
               sh '''
