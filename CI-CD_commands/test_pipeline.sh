@@ -72,8 +72,6 @@ pipeline {
             }
         }
         stage('Failed test') {
-	    environment {
-      }
             steps {
              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
               sh '''
