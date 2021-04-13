@@ -56,8 +56,7 @@ pipeline {
 	     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
               sh '''
                 git merge origin/$pr_from_ref
-                grep -i "hello" index.html || \
-		export RESULT=FAILURE
+                grep -qi "hello" index.html || \
               '''
       }
               post {
