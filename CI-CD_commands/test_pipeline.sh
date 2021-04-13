@@ -64,10 +64,10 @@ pipeline {
                 grep -iq "goodbye" index.html || exit 0
               '''
       }
-def gitPost (CONTEXT, DESCRIPTION, STATUS) {
-    script {
-        if ( COMMENT == "true" ) {
-             githubNotify account: 'gitmaks', 
+             def gitPost (CONTEXT, DESCRIPTION, STATUS) {
+               script {
+                if ( COMMENT == "true" ) {
+                          githubNotify account: 'gitmaks', 
                           context: 'Failed Test', 
                           credentialsId: 'github_update',
                           description: 'Some example description', 
