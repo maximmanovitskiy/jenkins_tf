@@ -11,7 +11,22 @@ properties([
      regexpFilterExpression: '^(created|opened|reopened|synchronize)$'
     ]
    ])
-])  
+])
+def gitPost (CONTEXT, DESCRIPTION, STATUS) {
+               script {
+                if ( COMMENT == "true" ) {
+                          githubNotify account: 'gitmaks',
+                          context: "${CONTEXT} Test",
+                          credentialsId: 'github_update',
+                          description: "${DESCRIPTION}",
+                          repo: 'jenkins_project',
+                          sha: "$pr_from_sha",
+                          status: "${STATUS}",
+                          targetUrl: "$JENKINS_URL"
+         }
+    }
+}
+
   
 pipeline {
     agent {
@@ -45,14 +60,15 @@ pipeline {
 		export RESULT=FAILURE
               '''
       }
-             githubNotify account: 'gitmaks', 
-                          context: 'Success Test', 
-                          credentialsId: 'github_update',
-                          description: 'Some example description', 
-                          repo: 'jenkins_project', 
-                          sha: "$pr_from_sha", 
-                          status: "$RESULT",
-                          targetUrl: "$JENKINS_URL"
+              post {
+                success {
+                    gitPost ("Tests", "SUCCESS #$BUILD_NUMBER", "SUCCESS")
+                }
+                failure {
+                    gitPost ("Tests", "FAILED #$BUILD_NUMBER", "FAILURE")
+                }
+            }
+
             }
         }
         stage('Failed test') {
@@ -61,26 +77,19 @@ pipeline {
             steps {
              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
               sh '''
-                grep -iq "goodbye" index.html || exit 0
+                grep -iq "goodbye" index.html
               '''
       }
-             def gitPost (CONTEXT, DESCRIPTION, STATUS) {
-               script {
-                if ( COMMENT == "true" ) {
-                          githubNotify account: 'gitmaks', 
-                          context: 'Failed Test', 
-                          credentialsId: 'github_update',
-                          description: 'Some example description', 
-                          repo: 'jenkins_project', 
-                          sha: "$pr_from_sha",
-			  status: "${RESULT}",
-                          targetUrl: "$JENKINS_URL"
+             post {
+                success {
+                    gitPost ("Tests", "SUCCESS #$BUILD_NUMBER", "SUCCESS")
+                }
+                failure {
+                    gitPost ("Tests", "FAILED #$BUILD_NUMBER", "FAILURE")
+                }
             }
-          }
-         }
-       }
     }
   }
+ }
 }
-
 
