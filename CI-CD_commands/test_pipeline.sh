@@ -14,7 +14,6 @@ properties([
 ])
 def gitPost (CONTEXT, DESCRIPTION, STATUS) {
                script {
-                if ( COMMENT == "true" ) {
                           githubNotify account: 'gitmaks',
                           context: "${CONTEXT} Test",
                           credentialsId: 'github_update',
@@ -25,7 +24,7 @@ def gitPost (CONTEXT, DESCRIPTION, STATUS) {
                           targetUrl: "$JENKINS_URL"
          }
     }
-}
+
 
   
 pipeline {
@@ -53,7 +52,7 @@ pipeline {
 	     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
               sh '''
                 git merge origin/$pr_from_ref
-                grep -qi "hello" index.html || \
+                grep -qi "hello" index.html
               '''
       }
 }
