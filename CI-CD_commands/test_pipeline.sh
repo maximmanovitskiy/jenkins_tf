@@ -31,9 +31,6 @@ pipeline {
     agent {
       label 'build'
     }
-    environment {
-       RESULT = 'SUCCESS'
-    }
     stages {
          stage('Get files') {
             steps {
