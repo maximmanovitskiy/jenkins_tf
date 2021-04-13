@@ -15,7 +15,7 @@ properties([
 def gitPost (CONTEXT, DESCRIPTION, STATUS) {
                script {
                           githubNotify account: 'gitmaks',
-                          context: "${CONTEXT} Test",
+                          context: "Jenkins-${CONTEXT}",
                           credentialsId: 'github_update',
                           description: "${DESCRIPTION}",
                           repo: 'jenkins_project',
@@ -78,6 +78,25 @@ pipeline {
                     gitPost ("Tests", "FAILED #$BUILD_NUMBER", "FAILURE")
                 }
             }
+            stage('Success test') {
+            steps {
+             catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+              sh '''
+                git merge origin/$pr_from_ref
+                grep -qi "hello" index.html
+              '''
+      }
+}
+            post {
+                success {
+                    gitPost ("Tests", "SUCCESS #$BUILD_NUMBER", "SUCCESS")
+                }
+                failure {
+                    gitPost ("Tests", "FAILED #$BUILD_NUMBER", "FAILURE")
+                }
+            }
+        }
+
   }
  }
 }
