@@ -49,9 +49,6 @@ pipeline {
             }
         }
         stage('Success test') {
-	    environment {
-	      RESULT = 'SUCCESS'
-      }
             steps {
 	     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
               sh '''
@@ -59,15 +56,14 @@ pipeline {
                 grep -qi "hello" index.html || \
               '''
       }
-              post {
+}
+            post {
                 success {
                     gitPost ("Tests", "SUCCESS #$BUILD_NUMBER", "SUCCESS")
                 }
                 failure {
                     gitPost ("Tests", "FAILED #$BUILD_NUMBER", "FAILURE")
                 }
-            }
-
             }
         }
         stage('Failed test') {
@@ -77,6 +73,7 @@ pipeline {
                 grep -iq "goodbye" index.html
               '''
       }
+   }
              post {
                 success {
                     gitPost ("Tests", "SUCCESS #$BUILD_NUMBER", "SUCCESS")
@@ -85,7 +82,6 @@ pipeline {
                     gitPost ("Tests", "FAILED #$BUILD_NUMBER", "FAILURE")
                 }
             }
-    }
   }
  }
 }
