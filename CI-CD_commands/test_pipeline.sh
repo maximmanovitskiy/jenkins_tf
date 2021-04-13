@@ -55,10 +55,10 @@ pipeline {
 }
             post {
                 success {
-                    gitPost ("Tests", "SUCCESS #$BUILD_NUMBER", "SUCCESS")
+                    gitPost ("Success test", "SUCCESS #$BUILD_NUMBER", "SUCCESS")
                 }
                 failure {
-                    gitPost ("Tests", "FAILED #$BUILD_NUMBER", "FAILURE")
+                    gitPost ("Success test", "FAILED #$BUILD_NUMBER", "FAILURE")
                 }
             }
         }
@@ -72,10 +72,10 @@ pipeline {
    }
              post {
                 success {
-                    gitPost ("Tests", "SUCCESS #$BUILD_NUMBER", "SUCCESS")
+                    gitPost ("Failed test", "SUCCESS #$BUILD_NUMBER", "SUCCESS")
                 }
                 failure {
-                    gitPost ("Tests", "FAILED #$BUILD_NUMBER", "FAILURE")
+                    gitPost ("Failed test", "FAILED #$BUILD_NUMBER", "FAILURE")
                 }
             }
 }
@@ -90,10 +90,10 @@ pipeline {
 }
             post {
                 success {
-                    gitPost ("Tests", "SUCCESS #$BUILD_NUMBER", "SUCCESS")
+                    gitPost ("Success test1", "SUCCESS #$BUILD_NUMBER", "SUCCESS")
                 }
                 failure {
-                    gitPost ("Tests", "FAILED #$BUILD_NUMBER", "FAILURE")
+                    gitPost ("Success test1", "FAILED #$BUILD_NUMBER", "FAILURE")
                 }
             }
        }
