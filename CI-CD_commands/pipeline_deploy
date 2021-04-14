@@ -89,7 +89,7 @@ pipeline {
                 curl -o /home/jenkins/iam-policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.1.2/docs/install/iam_policy.json
                 aws iam create-policy \
                   --policy-name AWSLoadBalancerControllerIAMPolicy \
-                  --policy-document file:///home/jenkins/iam-policy.json
+                  --policy-document file:///home/jenkins/iam-policy.json || exit 0
                 eksctl utils associate-iam-oidc-provider --cluster=${CLUSTER_NAME} --approve
                 eksctl create iamserviceaccount \
                   --cluster=${CLUSTER_NAME} \
