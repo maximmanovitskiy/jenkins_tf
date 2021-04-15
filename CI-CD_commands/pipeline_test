@@ -4,6 +4,7 @@ properties([
      genericVariables: [
        [ key: 'action', value: '$.action' ],
        [ key: 'pr_from_ref', value: '$.pull_request.head.ref' ],
+       [ key: 'pr_to_ref', value: '$.pull_request.base.ref'],
        [ key: 'pr_from_sha', value: '$.pull_request.head.sha' ]
      ],
      token: 'build-job',
@@ -43,7 +44,7 @@ pipeline {
                   ]]
                 ])
                sh '''
-                 git checkout
+                 git checkout $pr_to_ref
                '''
             }
         }
@@ -51,8 +52,7 @@ pipeline {
             steps {
 	     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
               sh '''
-                git merge origin/$pr_from_ref
-                git checkout
+                git merge $pr_from_ref
                 grep -qi "hello" index.html
               '''
       }
