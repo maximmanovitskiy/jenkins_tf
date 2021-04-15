@@ -14,6 +14,7 @@ apt install nfs-common -y
 mkdir /var/lib/jenkins/
 apt install openjdk-11-jdk -y
 apt install docker-ce -y
+sleep 5
 mount \
     -t nfs4 \
     -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport \
@@ -36,7 +37,8 @@ EOF"
 sed -i 's/<workspaceDir>.\+ITEM/<workspaceDir>\/var\/lib\/jenkins_workspace\/\$\{ITEM/g' /var/lib/jenkins/config.xml
 java -jar ./jenkins-cli.jar -s http://localhost:8080 \
 -auth admin:"$(cat /var/lib/jenkins/secrets/initialAdminPassword)" \
--noKeyAuth install-plugin greenballs github uno-choice -restart
+-noKeyAuth install-plugin greenballs github uno-choice workflow-aggregator ec2 \
+generic-webhook-trigger pipeline-githubnotify-step -restart
 sed -i 's/<globalNodeProperties\/>/<globalNodeProperties>\
  <hudson.slaves.EnvironmentVariablesNodeProperty>\
  <envVars serialization="custom">\

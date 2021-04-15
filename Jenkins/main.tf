@@ -34,6 +34,15 @@ resource "aws_key_pair" "jenkins_key" {
     Owner        = var.resource_owner
   }
 }
+resource "aws_key_pair" "jenkins_slave_key" {
+  key_name   = "jenkins_slave"
+  public_key = var.jenkins_slave_key
+  tags = {
+    Name         = "Jenkins_key"
+    ResourceName = "Key_pair"
+    Owner        = var.resource_owner
+  }
+}
 
 resource "aws_security_group" "jenkins_group" {
   name   = "jenkins_group"
@@ -52,6 +61,28 @@ resource "aws_security_group" "jenkins_group" {
   }
   tags = {
     Name         = "Jenkins_Sec_Group"
+    ResourceName = "Security_group"
+    Owner        = var.resource_owner
+  }
+}
+
+resource "aws_security_group" "jenkins_slave_grp" {
+  name   = "jenkins_slave_group"
+  vpc_id = module.jenkins_vpc.id
+  ingress {
+    from_port       = 22
+    to_port         = 22
+    protocol        = "tcp"
+    security_groups = [aws_security_group.jenkins_group.id]
+  }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  tags = {
+    Name         = "Jenkins_Slave_Sec_Group"
     ResourceName = "Security_group"
     Owner        = var.resource_owner
   }

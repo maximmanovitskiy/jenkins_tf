@@ -35,6 +35,9 @@ variable "resource_owner" {
 variable "jenkins_key" {
   description = "SSH key for Jenkins access"
 }
+variable "jenkins_slave_key" {
+  default = "SSH key for Jenkins slave access"
+}
 variable "cluster_name" {
   description = "Name of the cluster to admin"
 }

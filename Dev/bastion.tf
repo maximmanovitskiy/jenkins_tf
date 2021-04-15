@@ -23,7 +23,7 @@ resource "aws_instance" "bastion" {
   iam_instance_profile   = aws_iam_instance_profile.bastion_profile.id
   key_name               = aws_key_pair.bastion_key.id
   user_data              = data.template_file.bastion_script.rendered
-  depends_on             = [module.eks]
+  #depends_on             = [module.eks]
   tags = {
     Name         = "Bastion_EC2"
     ResourceName = "EC2"
