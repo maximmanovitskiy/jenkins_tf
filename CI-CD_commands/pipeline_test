@@ -42,13 +42,17 @@ pipeline {
                 credentialsId: 'docker_git',
                   ]]
                 ])
+               sh '''
+                 git checkout
+                 git merge origin/$pr_from_ref
+                 git checkout
+               '''
             }
         }
         stage('Success test') {
             steps {
 	     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
               sh '''
-                git merge origin/$pr_from_ref
                 grep -qi "hello" index.html
               '''
       }
