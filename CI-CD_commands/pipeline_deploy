@@ -103,7 +103,7 @@ pipeline {
               sh '''
                kubectl apply --validate=false -f $ENV-${BUILD_NUMBER}/cert-manager.yml
                sed -i "s/CLUSTER_NAME/${CLUSTER_NAME}/g" $ENV-${BUILD_NUMBER}/ingress-controller.yaml
-	       sleep 10
+	       sleep 15
                kubectl apply -f $ENV-${BUILD_NUMBER}/ingress-controller.yaml
              '''
            }
