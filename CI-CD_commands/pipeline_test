@@ -44,8 +44,6 @@ pipeline {
                 ])
                sh '''
                  git checkout
-                 git merge origin/$pr_from_ref
-                 git checkout
                '''
             }
         }
@@ -53,6 +51,8 @@ pipeline {
             steps {
 	     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
               sh '''
+                git merge origin/$pr_from_ref
+                git checkout
                 grep -qi "hello" index.html
               '''
       }
