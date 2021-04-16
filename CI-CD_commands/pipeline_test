@@ -46,6 +46,9 @@ pipeline {
                  ]
                 ]]
                ])
+              sh '''
+                 git checkout $pr_to_ref
+               '''
             }
         }
         stage('Success test') {
