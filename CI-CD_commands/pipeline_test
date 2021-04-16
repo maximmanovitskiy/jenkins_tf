@@ -52,7 +52,7 @@ pipeline {
             steps {
 	     catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
               sh '''
-                git merge origin/$pr_from_ref
+                git merge $pr_from_ref
                 grep -qi "hello" index.html
               '''
       }
