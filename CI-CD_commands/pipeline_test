@@ -44,6 +44,7 @@ pipeline {
                   ]]
                 ])
                sh '''
+                 git pull origin $pr_to_ref
                  git checkout $pr_to_ref
                '''
             }
