@@ -41,9 +41,7 @@ pipeline {
                 userRemoteConfigs: [[
                 url: 'git@github.com:gitmaks/jenkins_project.git',
                 credentialsId: 'docker_git',
-                extensions: scm.extensions + [
-                 [$class: 'CleanBeforeCheckout']
-                 ]
+                extensions: [[$class: 'CleanCheckout']]
                 ]]
                ])
               sh '''
