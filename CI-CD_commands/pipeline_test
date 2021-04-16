@@ -41,7 +41,6 @@ pipeline {
                 userRemoteConfigs: [[
                 url: 'git@github.com:gitmaks/jenkins_project.git',
                 credentialsId: 'docker_git',
-                extensions: [[$class: 'CleanCheckout']]
                 ]]
                ])
               sh '''
@@ -84,6 +83,12 @@ pipeline {
                 }
             }
        }
+       stage('Clean workspace directory') {
+            steps {
+                echo 'Cleaning workspace'
+                cleanWs ()
+            }
+        }
    }
 }
 
