@@ -1,0 +1,54 @@
+pipeline {
+    agent {
+      label 'build'
+    }
+    stages {
+        stage('Get files') {
+            steps {
+              checkout([
+                $class: 'GitSCM',
+                branches: [[name: 'main']],
+                userRemoteConfigs: [[
+                url: 'git@github.com:gitmaks/gateway.git',
+                credentialsId: 'docker_git',
+                  ]]
+                ])
+            }
+        }
+         stage('Docker build') {
+           steps {
+             sh '''
+               sudo docker build -t nginx_route .
+               sudo docker tag nginx_test nginx_route:${BUILD_NUMBER}
+               sudo docker tag nginx_test nginx_route:latest
+             '''
+           }
+         }
+         stage('Push build') {
+           steps {
+             sh '''
+               aws ecr get-login-password --region us-east-1 | \
+               sudo docker login --username AWS --password-stdin ${ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com
+               sudo docker tag "$(sudo docker images --filter=reference=nginx_route:${BUILD_NUMBER} -q)" \
+               ${ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/gateway:${BUILD_NUMBER}
+               sudo docker push ${ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/gateway:${BUILD_NUMBER}
+              '''
+            }
+          }
+         stage('Push latest') {
+            steps {
+              sh '''
+                sudo docker tag "$(sudo docker images --filter=reference=nginx_route:latest -q)" \
+                ${ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/gateway:latest
+                sudo docker push ${ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/gateway:latest
+              '''
+              build job: 'Deploy',
+               parameters: [
+                string(name: 'IMAGE_TAG', value: "${BUILD_NUMBER}"),
+                string(name: 'ENV', value: 'green')
+                ],
+               wait: false
+           }
+         }
+    }
+}

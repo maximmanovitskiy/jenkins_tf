@@ -33,6 +33,58 @@ return ecr_images.reverse()
       ]
     ],
     [$class: 'ChoiceParameter',
+      choiceType: 'PT_SINGLE_SELECT',
+      filterLength: 1,
+      filterable: false,
+      name: 'BLUE_ROUTE_TAG',
+      script: [
+        $class: 'GroovyScript',
+        script: [
+            classpath: [],
+            sandbox: false,
+            script: '''import groovy.json.JsonSlurper
+
+def ecr_images_json = ['bash', '-c', "aws ecr list-images --repository-name gateway --filter tagStatus=TAGGED --region us-east-1"].execute().text
+def data = new JsonSlurper().parseText(ecr_images_json)
+def ecr_images = [];
+data.imageIds.each {
+ if ( "$it.imageTag".length() >= 1 )  {
+       ecr_images.push("$it.imageTag")
+    }
+}
+
+return ecr_images.reverse()
+            '''
+        ]
+      ]
+    ],
+        [$class: 'ChoiceParameter',
+      choiceType: 'PT_SINGLE_SELECT',
+      filterLength: 1,
+      filterable: false,
+      name: 'GRN_ROUTE_TAG',
+      script: [
+        $class: 'GroovyScript',
+        script: [
+            classpath: [],
+            sandbox: false,
+            script: '''import groovy.json.JsonSlurper
+
+def ecr_images_json = ['bash', '-c', "aws ecr list-images --repository-name gateway --filter tagStatus=TAGGED --region us-east-1"].execute().text
+def data = new JsonSlurper().parseText(ecr_images_json)
+def ecr_images = [];
+data.imageIds.each {
+ if ( "$it.imageTag".length() >= 1 )  {
+       ecr_images.push("$it.imageTag")
+    }
+}
+
+return ecr_images.reverse()
+            '''
+        ]
+      ]
+    ],
+    [$class: 'ChoiceParameter',
        choiceType: 'PT_SINGLE_SELECT',
        filterLength: 1,
        filterable: false,
@@ -47,8 +99,46 @@ return ecr_images.reverse()
          script: [
             classpath: [],
 	    sandbox: false, 
-            script: "return['green:selected', 'blue']"
+            script: "return['blue&green:selected', 'blue', 'green']"
 	]
+     ]
+   ],
+       [$class: 'ChoiceParameter',
+       choiceType: 'PT_SINGLE_SELECT',
+       filterLength: 1,
+       filterable: false,
+       name: 'GREEN_WEIGHT',
+       script: [
+         $class: 'GroovyScript',
+         fallbackScript: [
+                classpath: [],
+                sandbox: false,
+                script: 'return ["error"]'
+                ],
+         script: [
+            classpath: [],
+            sandbox: false,
+            script: "return['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']"
+        ]
+     ]
+   ],
+   [$class: 'ChoiceParameter',
+       choiceType: 'PT_SINGLE_SELECT',
+       filterLength: 1,
+       filterable: false,
+       name: 'BLUE_WEIGHT',
+       script: [
+         $class: 'GroovyScript',
+         fallbackScript: [
+                classpath: [],
+                sandbox: false,
+                script: 'return ["error"]'
+                ],
+         script: [
+            classpath: [],
+            sandbox: false,
+            script: "return['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']"
+        ]
      ]
    ]
  ])
@@ -56,30 +146,54 @@ return ecr_images.reverse()
 pipeline {
     agent any
     stages {
-        stage('Modify yml') {
+        stage('Get files') {
+            steps {
+              checkout([
+                $class: 'GitSCM',
+                branches: [[name: 'main']],
+                userRemoteConfigs: [[
+                url: 'git@github.com:gitmaks/k8s.git',
+                credentialsId: 'docker_git',
+                extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: '$ENV-${BUILD_NAMUBER}']]
+                  ]]
+                ])
+            }
+        }
+        stage('Modify yml & apply') {
             steps {
               sh '''
-                mkdir $ENV-${BUILD_NUMBER}
-                git clone https://github.com/gitmaks/k8s/ $ENV-${BUILD_NUMBER}
                 sed -i "s/IMAGE_TAG/$IMAGE_TAG/g" $ENV-${BUILD_NUMBER}/*.yml
-                sed -i "s/ENV/$ENV/g" $ENV-${BUILD_NUMBER}/*.yml
                 sed -i "s/ACCOUNT_ID/${ACCOUNT_ID}/g" $ENV-${BUILD_NUMBER}/*.yml
                 sed -i "s/AWS_REGION/${AWS_REGION}/g" $ENV-${BUILD_NUMBER}/*.yml
+                sed -i "s/ROUTE-GRN/$ROUTE-GRN/g" ingress.yml
+                sed -i "s/ROUTE-BLUE/$ROUTE-BLUE/g" ingress.yml
+                aws eks update-kubeconfig --name nginx-eks
+                if [ $ENV == 'green']
+                then
+                    sed -i "s/\$GREEN_WEIGHT/$GREEN_WEIGHT/g" route-pod-grn.yml
+                    sed -i "s/GRN_ROUTE_TAG/$GRN_ROUTE_TAG/g" route-pod-grn.yml
+                    kubectl apply -f route-*-grn.yml
+                    kubectl apply $(ls $ENV-${BUILD_NUMBER}/route-*-grn.yml | awk ' { print " -f " $1 } ')
+                    kubectl apply $(ls $ENV-${BUILD_NUMBER}/nginx-*-grn.yml | awk ' { print " -f " $1 } ')
+                elif [ $ENV == 'blue']
+                then
+                    sed -i "s/\$BLUE_WEIGHT/$BLUE_WEIGHT/g" $ENV-${BUILD_NUMBER}/route-pod-blue.yml
+                    sed -i "s/BLUE_ROUTE_TAG/$BLUE_ROUTE_TAG/g" $ENV-${BUILD_NUMBER}/route-pod-blue.yml
+                    kubectl apply $(ls $ENV-${BUILD_NUMBER}/route-*-blue.yml | awk ' { print " -f " $1 } ')
+                    kubectl apply $(ls $ENV-${BUILD_NUMBER}/nginx-*-blue.yml | awk ' { print " -f " $1 } ')
+                elif [ $ENV == 'blue&green']
+                then
+                    sed -i "s/\$BLUE_WEIGHT/$BLUE_WEIGHT/g" $ENV-${BUILD_NUMBER}/route-pod-blue.yml
+                    sed -i "s/BLUE_ROUTE_TAG/$BLUE_ROUTE_TAG/g" $ENV-${BUILD_NUMBER}/route-pod-blue.yml
+                    sed -i "s/\$GREEN_WEIGHT/$GREEN_WEIGHT/g" $ENV-${BUILD_NUMBER}/route-pod-grn.yml
+                    sed -i "s/GRN_ROUTE_TAG/$GRN_ROUTE_TAG/g" $ENV-${BUILD_NUMBER}/route-pod-grn.yml
+                    kubectl apply $(ls $ENV-${BUILD_NUMBER}/route-*.yml | awk ' { print " -f " $1 } ')
+                    kubectl apply $(ls $ENV-${BUILD_NUMBER}/nginx-*.yml | awk ' { print " -f " $1 } ')
+                fi
               '''
             }
         }
-         stage('Apply yml') {
-           steps {
-             sh '''
-               aws eks update-kubeconfig --name nginx-eks
-               kubectl apply -f $ENV-${BUILD_NUMBER}/namespace.yml
-               kubectl apply -f $ENV-${BUILD_NUMBER}/deploy.yml
-               kubectl apply -f $ENV-${BUILD_NUMBER}/service.yml
-               kubectl apply -f $ENV-${BUILD_NUMBER}/ingress.yml
-             '''
-           }
-         }
-         stage('Setup ingress service acc') {
+        stage('Setup ingress service acc') {
            steps {
              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
               sh '''
