@@ -42,12 +42,6 @@ pipeline {
                 ${ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/gateway:latest
                 sudo docker push ${ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/gateway:latest
               '''
-              build job: 'Deploy',
-               parameters: [
-                string(name: 'IMAGE_TAG', value: "${BUILD_NUMBER}"),
-                string(name: 'ENV', value: 'green')
-                ],
-               wait: false
            }
          }
     }
