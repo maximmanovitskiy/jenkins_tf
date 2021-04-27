@@ -7,30 +7,23 @@ properties([
   ],
   parameters([
     [$class: 'ChoiceParameter',
-      choiceType: 'PT_SINGLE_SELECT',
-      filterLength: 1,
-      filterable: false, 
-      name: 'IMAGE_TAG',
-      script: [
-        $class: 'GroovyScript',
-        script: [
-            classpath: [], 
-            sandbox: false, 
-            script: '''import groovy.json.JsonSlurper
-
-def ecr_images_json = ['bash', '-c', "aws ecr list-images --repository-name ecr_images_from_jenkins --filter tagStatus=TAGGED --region us-east-1"].execute().text
-def data = new JsonSlurper().parseText(ecr_images_json)
-def ecr_images = [];
-data.imageIds.each {
- if ( "$it.imageTag".length() >= 1 )  {
-       ecr_images.push("$it.imageTag")
-    }
-}
-
-return ecr_images.reverse()
-	    '''
-	]
-      ]
+       choiceType: 'PT_SINGLE_SELECT',
+       filterLength: 1,
+       filterable: false,
+       name: 'ENV',
+       script: [
+         $class: 'GroovyScript',
+         fallbackScript: [
+                classpath: [],
+                sandbox: false,
+                script: 'return ["error"]'
+                ],
+         script: [
+            classpath: [],
+            sandbox: false,
+            script: "return['blue&green:selected', 'blue', 'green']"
+        ]
+     ]
     ],
     [$class: 'ChoiceParameter',
       choiceType: 'PT_SINGLE_SELECT',
@@ -58,7 +51,7 @@ return ecr_images.reverse()
         ]
       ]
     ],
-        [$class: 'ChoiceParameter',
+    [$class: 'ChoiceParameter',
       choiceType: 'PT_SINGLE_SELECT',
       filterLength: 1,
       filterable: false,
@@ -85,36 +78,17 @@ return ecr_images.reverse()
       ]
     ],
     [$class: 'ChoiceParameter',
-       choiceType: 'PT_SINGLE_SELECT',
-       filterLength: 1,
-       filterable: false,
-       name: 'ENV',
-       script: [
-         $class: 'GroovyScript',
-  	 fallbackScript: [
-                classpath: [],
-                sandbox: false,
-                script: 'return ["error"]'
-                ],
-         script: [
-            classpath: [],
-	    sandbox: false, 
-            script: "return['blue&green:selected', 'blue', 'green']"
-	]
-     ]
-   ],
-       [$class: 'ChoiceParameter',
-       choiceType: 'PT_SINGLE_SELECT',
-       filterLength: 1,
-       filterable: false,
-       name: 'GREEN_WEIGHT',
-       script: [
-         $class: 'GroovyScript',
-         fallbackScript: [
-                classpath: [],
-                sandbox: false,
-                script: 'return ["error"]'
-                ],
+        choiceType: 'PT_SINGLE_SELECT',
+        filterLength: 1,
+        filterable: false,
+        name: 'GREEN_WEIGHT',
+        script: [
+          $class: 'GroovyScript',
+          fallbackScript: [
+                 classpath: [],
+                 sandbox: false,
+                 script: 'return ["error"]'
+                 ],
          script: [
             classpath: [],
             sandbox: false,
@@ -138,9 +112,61 @@ return ecr_images.reverse()
             classpath: [],
             sandbox: false,
             script: "return['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']"
+         ]
+      ]
+    ],
+    [$class: 'ChoiceParameter',
+      choiceType: 'PT_SINGLE_SELECT',
+      filterLength: 1,
+      filterable: false,
+      name: 'BLUE_IMAGE_TAG',
+      script: [
+        $class: 'GroovyScript',
+        script: [
+            classpath: [],
+            sandbox: false,
+            script: '''import groovy.json.JsonSlurper
+
+def ecr_images_json = ['bash', '-c', "aws ecr list-images --repository-name ecr_images_from_jenkins --filter tagStatus=TAGGED --region us-east-1"].execute().text
+def data = new JsonSlurper().parseText(ecr_images_json)
+def ecr_images = [];
+data.imageIds.each {
+ if ( "$it.imageTag".length() >= 1 )  {
+       ecr_images.push("$it.imageTag")
+    }
+}
+
+return ecr_images.reverse()
+            '''
         ]
-     ]
-   ]
+      ]
+    ],
+    [$class: 'ChoiceParameter',
+      choiceType: 'PT_SINGLE_SELECT',
+      filterLength: 1,
+      filterable: false,
+      name: 'GRN_IMAGE_TAG',
+      script: [
+        $class: 'GroovyScript',
+        script: [
+            classpath: [],
+            sandbox: false,
+            script: '''import groovy.json.JsonSlurper
+
+def ecr_images_json = ['bash', '-c', "aws ecr list-images --repository-name ecr_images_from_jenkins --filter tagStatus=TAGGED --region us-east-1"].execute().text
+def data = new JsonSlurper().parseText(ecr_images_json)
+def ecr_images = [];
+data.imageIds.each {
+ if ( "$it.imageTag".length() >= 1 )  {
+       ecr_images.push("$it.imageTag")
+    }
+}
+
+return ecr_images.reverse()
+            '''
+        ]
+      ]
+    ]
  ])
 ])
 pipeline {
@@ -162,16 +188,16 @@ pipeline {
         stage('Modify yml & apply') {
             steps {
               sh '''
-                sed -i "s/IMAGE_TAG/$IMAGE_TAG/g" $ENV-${BUILD_NUMBER}/*.yml
                 sed -i "s/ACCOUNT_ID/${ACCOUNT_ID}/g" $ENV-${BUILD_NUMBER}/*.yml
                 sed -i "s/AWS_REGION/${AWS_REGION}/g" $ENV-${BUILD_NUMBER}/*.yml
-                sed -i "s/ROUTE-GRN/$ROUTE-GRN/g" ingress.yml
-                sed -i "s/ROUTE-BLUE/$ROUTE-BLUE/g" ingress.yml
+                sed -i "s/ROUTE-GRN/$ROUTE-GRN/g" $ENV-${BUILD_NUMBER}/ingress.yml
+                sed -i "s/ROUTE-BLUE/$ROUTE-BLUE/g" $ENV-${BUILD_NUMBER}/ingress.yml
                 aws eks update-kubeconfig --name nginx-eks
                 if [ $ENV == 'green']
                 then
-                    sed -i "s/\$GREEN_WEIGHT/$GREEN_WEIGHT/g" route-pod-grn.yml
-                    sed -i "s/GRN_ROUTE_TAG/$GRN_ROUTE_TAG/g" route-pod-grn.yml
+                    sed -i "s/\$GREEN_WEIGHT/$GREEN_WEIGHT/g" $ENV-${BUILD_NUMBER}/route-pod-grn.yml
+                    sed -i "s/GRN_ROUTE_TAG/$GRN_ROUTE_TAG/g" $ENV-${BUILD_NUMBER}/route-pod-grn.yml
+                    sed -i "s/IMAGE_TAG/$GRN_IMAGE_TAG/g" $ENV-${BUILD_NUMBER}/nginx-deploy-grn.yml
                     kubectl apply -f route-*-grn.yml
                     kubectl apply $(ls $ENV-${BUILD_NUMBER}/route-*-grn.yml | awk ' { print " -f " $1 } ')
                     kubectl apply $(ls $ENV-${BUILD_NUMBER}/nginx-*-grn.yml | awk ' { print " -f " $1 } ')
@@ -179,6 +205,7 @@ pipeline {
                 then
                     sed -i "s/\$BLUE_WEIGHT/$BLUE_WEIGHT/g" $ENV-${BUILD_NUMBER}/route-pod-blue.yml
                     sed -i "s/BLUE_ROUTE_TAG/$BLUE_ROUTE_TAG/g" $ENV-${BUILD_NUMBER}/route-pod-blue.yml
+                    sed -i "s/IMAGE_TAG/$BLUE_IMAGE_TAG/g" $ENV-${BUILD_NUMBER}/nginx-deploy-blue.yml
                     kubectl apply $(ls $ENV-${BUILD_NUMBER}/route-*-blue.yml | awk ' { print " -f " $1 } ')
                     kubectl apply $(ls $ENV-${BUILD_NUMBER}/nginx-*-blue.yml | awk ' { print " -f " $1 } ')
                 elif [ $ENV == 'blue&green']
@@ -187,6 +214,8 @@ pipeline {
                     sed -i "s/BLUE_ROUTE_TAG/$BLUE_ROUTE_TAG/g" $ENV-${BUILD_NUMBER}/route-pod-blue.yml
                     sed -i "s/\$GREEN_WEIGHT/$GREEN_WEIGHT/g" $ENV-${BUILD_NUMBER}/route-pod-grn.yml
                     sed -i "s/GRN_ROUTE_TAG/$GRN_ROUTE_TAG/g" $ENV-${BUILD_NUMBER}/route-pod-grn.yml
+                    sed -i "s/IMAGE_TAG/$BLUE_IMAGE_TAG/g" $ENV-${BUILD_NUMBER}/nginx-deploy-blue.yml
+                    sed -i "s/IMAGE_TAG/$GRN_IMAGE_TAG/g" $ENV-${BUILD_NUMBER}/nginx-deploy-grn.yml
                     kubectl apply $(ls $ENV-${BUILD_NUMBER}/route-*.yml | awk ' { print " -f " $1 } ')
                     kubectl apply $(ls $ENV-${BUILD_NUMBER}/nginx-*.yml | awk ' { print " -f " $1 } ')
                 fi
