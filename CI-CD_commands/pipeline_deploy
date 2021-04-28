@@ -224,7 +224,7 @@ pipeline {
         }
         stage('Modify yml & apply') {
             steps {
-              sh '''
+              sh '''#!/bin/bash
                 sed -i "s/ACCOUNT_ID/${ACCOUNT_ID}/g" *.yml
                 sed -i "s/AWS_REGION/${AWS_REGION}/g" *.yml
                 sed -i "s/ROUTE-GRN/$ROUTE-GRN/g" ingress.yml
