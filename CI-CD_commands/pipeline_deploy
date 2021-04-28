@@ -230,7 +230,7 @@ pipeline {
                 sed -i "s/ROUTE-GRN/$ROUTE-GRN/g" ingress.yml
                 sed -i "s/ROUTE-BLUE/$ROUTE-BLUE/g" ingress.yml
                 aws eks update-kubeconfig --name nginx-eks
-                if [ $ENV == 'green']
+                if [ $ENV -eq 'green' ]
                 then
                     sed -i "s/\$GREEN_WEIGHT/$GREEN_WEIGHT/g" server-grn.conf
                     sed -i "s/GRN_ROUTE_TAG/$GRN_ROUTE_TAG/g" route-pod-grn.yml
@@ -239,7 +239,7 @@ pipeline {
                     kubectl create configmap route-grn --from-file server-grn.conf -o yaml --dry-run=client -n route | kubectl replace -f -
                     kubectl apply $(ls route-*-grn.yml | awk ' { print " -f " $1 } ')
                     kubectl apply $(ls nginx-*-grn.yml | awk ' { print " -f " $1 } ')
-                elif [ $ENV == 'blue']
+                elif [ $ENV -== 'blue' ]
                 then
                     sed -i "s/\$BLUE_WEIGHT/$BLUE_WEIGHT/g" server-blue.conf
                     sed -i "s/BLUE_ROUTE_TAG/$BLUE_ROUTE_TAG/g" route-pod-blue.yml
@@ -248,7 +248,7 @@ pipeline {
                     kubectl create configmap route-blue --from-file server-blue.conf -o yaml --dry-run=client -n route | kubectl replace -f -
                     kubectl apply $(ls route-*-blue.yml | awk ' { print " -f " $1 } ')
                     kubectl apply $(ls nginx-*-blue.yml | awk ' { print " -f " $1 } ')
-                elif [ $ENV == 'blue&green']
+                elif [ $ENV == 'blue&green' ]
                 then
                     sed -i "s/\$BLUE_WEIGHT/$BLUE_WEIGHT/g" server-blue.conf
                     sed -i "s/BLUE_ROUTE_TAG/$BLUE_ROUTE_TAG/g" route-pod-blue.yml
