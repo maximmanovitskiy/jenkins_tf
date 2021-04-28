@@ -230,7 +230,7 @@ pipeline {
                 sed -i "s/ROUTE-GRN/$ROUTE-GRN/g" ingress.yml
                 sed -i "s/ROUTE-BLUE/$ROUTE-BLUE/g" ingress.yml
                 aws eks update-kubeconfig --name nginx-eks
-                if [ $ENV -eq 'green' ]
+                if [ $ENV == 'green' ]
                 then
                     sed -i "s/\$GREEN_WEIGHT/$GREEN_WEIGHT/g" server-grn.conf
                     sed -i "s/GRN_ROUTE_TAG/$GRN_ROUTE_TAG/g" route-pod-grn.yml
