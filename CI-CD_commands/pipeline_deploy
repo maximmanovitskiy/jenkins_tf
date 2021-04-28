@@ -257,7 +257,7 @@ pipeline {
              '''
           }
         }
-        stage('Apply Ingress controller') {
+        stage('Clear WS') {
             steps {
              echo 'Cleaning workspace'
              cleanWs()
