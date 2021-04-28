@@ -26,6 +26,44 @@ properties([
      ]
     ],
     [$class: 'ChoiceParameter',
+        choiceType: 'PT_SINGLE_SELECT',
+        filterLength: 1,
+        filterable: false,
+        name: 'ROUTE-BLUE',
+        script: [
+          $class: 'GroovyScript',
+          fallbackScript: [
+                 classpath: [],
+                 sandbox: false,
+                 script: 'return ["error"]'
+                 ],
+         script: [
+            classpath: [],
+            sandbox: false,
+            script: "return['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']"
+        ]
+     ]
+   ],
+   [$class: 'ChoiceParameter',
+       choiceType: 'PT_SINGLE_SELECT',
+       filterLength: 1,
+       filterable: false,
+       name: 'ROUTE-GRN',
+       script: [
+         $class: 'GroovyScript',
+         fallbackScript: [
+                classpath: [],
+                sandbox: false,
+                script: 'return ["error"]'
+                ],
+         script: [
+            classpath: [],
+            sandbox: false,
+            script: "return['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']"
+         ]
+      ]
+    ],
+    [$class: 'ChoiceParameter',
       choiceType: 'PT_SINGLE_SELECT',
       filterLength: 1,
       filterable: false,
