@@ -240,6 +240,7 @@ pipeline {
                     kubectl create configmap route-grn --from-file server-grn.conf -o yaml --dry-run=client -n route | kubectl replace -f -
                     kubectl apply $(ls route-*-grn.yml | awk ' { print " -f " $1 } ')
                     kubectl apply $(ls nginx-*-grn.yml | awk ' { print " -f " $1 } ')
+                    kubectl apply -f ingress.yml
                 elif [ $ENV == 'blue' ];
                 then
                     sed -i "s/\$BLUE_WEIGHT/$BLUE_WEIGHT/g" server-blue.conf
@@ -249,6 +250,7 @@ pipeline {
                     kubectl create configmap route-blue --from-file server-blue.conf -o yaml --dry-run=client -n route | kubectl replace -f -
                     kubectl apply $(ls route-*-blue.yml | awk ' { print " -f " $1 } ')
                     kubectl apply $(ls nginx-*-blue.yml | awk ' { print " -f " $1 } ')
+                    kubectl apply -f ingress.yml
                 elif [ $ENV == 'blue&green' ];
                 then
                     sed -i "s/\$BLUE_WEIGHT/$BLUE_WEIGHT/g" server-blue.conf
@@ -263,6 +265,7 @@ pipeline {
                     kubectl create configmap route-grn --from-file server-grn.conf -o yaml --dry-run=client -n route | kubectl replace -f -
                     kubectl apply $(ls route-*.yml | awk ' { print " -f " $1 } ')
                     kubectl apply $(ls nginx-*.yml | awk ' { print " -f " $1 } ')
+                    kubectl apply -f ingress.yml
                 fi
               '''
             }
