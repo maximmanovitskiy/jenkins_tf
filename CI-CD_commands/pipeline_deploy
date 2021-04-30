@@ -29,7 +29,7 @@ properties([
         choiceType: 'PT_SINGLE_SELECT',
         filterLength: 1,
         filterable: false,
-        name: 'ROUTE-BLUE',
+        name: 'ROUTE_BLUE',
         script: [
           $class: 'GroovyScript',
           fallbackScript: [
@@ -48,7 +48,7 @@ properties([
        choiceType: 'PT_SINGLE_SELECT',
        filterLength: 1,
        filterable: false,
-       name: 'ROUTE-GRN',
+       name: 'ROUTE_GRN',
        script: [
          $class: 'GroovyScript',
          fallbackScript: [
@@ -227,8 +227,8 @@ pipeline {
               sh '''#!/bin/bash
                 sed -i "s/ACCOUNT_ID/${ACCOUNT_ID}/g" *.yml
                 sed -i "s/AWS_REGION/${AWS_REGION}/g" *.yml
-                sed -i "s/ROUTE-GRN/$ROUTE-GRN/g" ingress.yml
-                sed -i "s/ROUTE-BLUE/$ROUTE-BLUE/g" ingress.yml
+                sed -i "s/ROUTE-GRN/$ROUTE_GRN/g" ingress.yml
+                sed -i "s/ROUTE-BLUE/$ROUTE_BLUE/g" ingress.yml
                 aws eks update-kubeconfig --name nginx-eks
                 kubectl apply -f route-namespace.yml
                 kubectl apply $(ls nginx-ns-*.yml | awk ' { print " -f " $1 } ')
