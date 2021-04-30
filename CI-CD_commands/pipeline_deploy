@@ -231,6 +231,7 @@ pipeline {
                 sed -i "s/ROUTE-BLUE/$ROUTE-BLUE/g" ingress.yml
                 aws eks update-kubeconfig --name nginx-eks
                 kubectl apply -f route-namespace.yml
+                kubectl apply $(ls nginx-ns-*.yml | awk ' { print " -f " $1 } ')
                 if [ $ENV == 'green' ];
                 then
                     sed -i "s/\$GREEN_WEIGHT/$GREEN_WEIGHT/g" server-grn.conf
