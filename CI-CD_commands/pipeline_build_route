@@ -19,8 +19,8 @@ pipeline {
            steps {
              sh '''
                sudo docker build -t nginx_route .
-               sudo docker tag nginx_test nginx_route:${BUILD_NUMBER}
-               sudo docker tag nginx_test nginx_route:latest
+               sudo docker tag nginx_route nginx_route:${BUILD_NUMBER}
+               sudo docker tag nginx_route nginx_route:latest
              '''
            }
          }
