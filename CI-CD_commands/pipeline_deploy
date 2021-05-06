@@ -233,7 +233,7 @@ pipeline {
                 then
                    sed -i '/nginx-service-blue/d' server-blue.conf server-grn.conf
                 fi
-                if [ $GRN_WEIGHT == 0 ];
+                if [ $GREEN_WEIGHT == 0 ];
                 then
                    sed -i '/nginx-service-green/d' server-blue.conf server-grn.conf
                 fi
