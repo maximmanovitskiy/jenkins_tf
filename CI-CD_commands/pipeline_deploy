@@ -229,6 +229,12 @@ pipeline {
                 sed -i "s/AWS_REGION/${AWS_REGION}/g" *.yml
                 sed -i "s/ROUTE-GRN/$ROUTE_GRN/g" ingress.yml
                 sed -i "s/ROUTE-BLUE/$ROUTE_BLUE/g" ingress.yml
+                if [ $BLUE_WEIGHT == 0 ];
+                then
+                   sed -i '/nginx-service-blue/d' server-blue.conf server-grn.conf
+                if [ $GRN_WEIGHT == 0 ];
+                then
+                   sed -i '/nginx-service-green/d' server-blue.conf server-grn.conf
                 aws eks update-kubeconfig --name nginx-eks
                 kubectl apply -f route-namespace.yml
                 kubectl apply $(ls nginx-ns-*.yml | awk ' { print " -f " $1 } ')
