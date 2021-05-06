@@ -236,7 +236,7 @@ pipeline {
                 then
                     sed -i "s/GREEN_WEIGHT/$GREEN_WEIGHT/g" server-grn.conf
                     sed -i "s/BLUE_WEIGHT/$BLUE_WEIGHT/g" server-grn.conf
-                    sed -i "s/GRN_ROUTE_TAG/$GRN_ROUTE_TAG/g" route-pod-grn.yml
+                    sed -i "s/GRN_ROUTE_TAG/$GRN_ROUTE_TAG/g" route-deploy-grn.yml
                     sed -i "s/IMAGE_TAG/$GRN_IMAGE_TAG/g" nginx-deploy-grn.yml
                     kubectl create configmap route-grn --from-file server-grn.conf -n route || \
                     kubectl create configmap route-grn --from-file server-grn.conf -o yaml --dry-run=client -n route | kubectl replace -f -
@@ -247,7 +247,7 @@ pipeline {
                 then
                     sed -i "s/BLUE_WEIGHT/$BLUE_WEIGHT/g" server-blue.conf
                     sed -i "s/GREEN_WEIGHT/$GREEN_WEIGHT/g" server-blue.conf
-                    sed -i "s/BLUE_ROUTE_TAG/$BLUE_ROUTE_TAG/g" route-pod-blue.yml
+                    sed -i "s/BLUE_ROUTE_TAG/$BLUE_ROUTE_TAG/g" route-deploy-blue.yml
                     sed -i "s/IMAGE_TAG/$BLUE_IMAGE_TAG/g" nginx-deploy-blue.yml
                     kubectl create configmap route-blue --from-file server-blue.conf -n route || \
                     kubectl create configmap route-blue --from-file server-blue.conf -o yaml --dry-run=client -n route | kubectl replace -f -
@@ -258,10 +258,10 @@ pipeline {
                 then
                     sed -i "s/BLUE_WEIGHT/$BLUE_WEIGHT/g" server-blue.conf
                     sed -i "s/GREEN_WEIGHT/$GREEN_WEIGHT/g" server-blue.conf
-                    sed -i "s/BLUE_ROUTE_TAG/$BLUE_ROUTE_TAG/g" route-pod-blue.yml
+                    sed -i "s/BLUE_ROUTE_TAG/$BLUE_ROUTE_TAG/g" route-deploy-blue.yml
                     sed -i "s/GREEN_WEIGHT/$GREEN_WEIGHT/g" server-grn.conf
                     sed -i "s/BLUE_WEIGHT/$BLUE_WEIGHT/g" server-grn.conf
-                    sed -i "s/GRN_ROUTE_TAG/$GRN_ROUTE_TAG/g" route-pod-grn.yml
+                    sed -i "s/GRN_ROUTE_TAG/$GRN_ROUTE_TAG/g" route-deploy-grn.yml
                     sed -i "s/IMAGE_TAG/$BLUE_IMAGE_TAG/g" nginx-deploy-blue.yml
                     sed -i "s/IMAGE_TAG/$GRN_IMAGE_TAG/g" nginx-deploy-grn.yml
                     kubectl create configmap route-blue --from-file server-blue.conf -n route || \
