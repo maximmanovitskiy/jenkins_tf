@@ -1,0 +1,154 @@
+properties([
+  [$class: 'BuildDiscarderProperty',
+    strategy: [
+      $class: 'LogRotator',
+      numToKeepStr: '4',
+    ]
+  ],
+  parameters([
+    [$class: 'ChoiceParameter',
+      choiceType: 'PT_SINGLE_SELECT',
+      filterLength: 1,
+      filterable: false,
+      name: 'ROUTE_TAG',
+      description: 'Select the tag of the image for routing pods to blue namespace',
+      script: [
+        $class: 'GroovyScript',
+        script: [
+            classpath: [],
+            sandbox: false,
+            script: '''import groovy.json.JsonSlurper
+
+def ecr_images_json = ['bash', '-c', "aws ecr list-images --repository-name gateway --filter tagStatus=TAGGED --region us-east-1"].execute().text
+def data = new JsonSlurper().parseText(ecr_images_json)
+def ecr_images = [];
+data.imageIds.each {
+ if ( "$it.imageTag".length() >= 1 )  {
+       ecr_images.push("$it.imageTag")
+    }
+}
+
+return ecr_images.reverse()
+            '''
+        ]
+      ]
+    ],
+    [$class: 'ChoiceParameter',
+        choiceType: 'PT_SINGLE_SELECT',
+        filterLength: 1,
+        filterable: false,
+        name: 'GREEN_WEIGHT',
+        description: 'Select the weight of app in green namespace',
+        script: [
+          $class: 'GroovyScript',
+          fallbackScript: [
+                 classpath: [],
+                 sandbox: false,
+                 script: 'return ["error"]'
+                 ],
+         script: [
+            classpath: [],
+            sandbox: false,
+            script: "return['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']"
+        ]
+     ]
+   ],
+   [$class: 'ChoiceParameter',
+       choiceType: 'PT_SINGLE_SELECT',
+       filterLength: 1,
+       filterable: false,
+       name: 'BLUE_WEIGHT',
+       description: 'Select the weight of app in blue namespace',
+       script: [
+         $class: 'GroovyScript',
+         fallbackScript: [
+                classpath: [],
+                sandbox: false,
+                script: 'return ["error"]'
+                ],
+         script: [
+            classpath: [],
+            sandbox: false,
+            script: "return['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']"
+         ]
+      ]
+    ],
+    [$class: 'ChoiceParameter',
+      choiceType: 'PT_SINGLE_SELECT',
+      filterLength: 1,
+      filterable: false,
+      name: 'APP_IMAGE_TAG',
+      description: 'Select the image tag of the app',
+      script: [
+        $class: 'GroovyScript',
+        script: [
+            classpath: [],
+            sandbox: false,
+            script: '''import groovy.json.JsonSlurper
+
+def ecr_images_json = ['bash', '-c', "aws ecr list-images --repository-name ecr_images_from_jenkins --filter tagStatus=TAGGED --region us-east-1"].execute().text
+def data = new JsonSlurper().parseText(ecr_images_json)
+def ecr_images = [];
+data.imageIds.each {
+ if ( "$it.imageTag".length() >= 1 )  {
+       ecr_images.push("$it.imageTag")
+    }
+}
+
+return ecr_images.reverse()
+            '''
+        ]
+      ]
+    ]
+ ])
+])
+pipeline {
+    agent any
+    stages {
+        stage('Get files') {
+            steps {
+              checkout([
+                $class: 'GitSCM',
+                branches: [[name: 'main']],
+                userRemoteConfigs: [[
+                url: 'git@github.com:gitmaks/k8s.git',
+                credentialsId: 'docker_git',
+                  ]]
+                ])
+            }
+        }
+        stage('Modify yml & apply') {
+            steps {
+              sh '''#!/bin/bash
+                sed -i "s/ACCOUNT_ID/${ACCOUNT_ID}/g" *.yml
+                sed -i "s/AWS_REGION/${AWS_REGION}/g" *.yml
+                if [ $BLUE_WEIGHT == 0 ];
+                then
+                   sed -i '/nginx-service-blue/d' server-grn.conf
+                fi
+                if [ $GREEN_WEIGHT == 0 ];
+                then
+                   sed -i '/nginx-service-green/d' server-grn.conf
+                fi
+                aws eks update-kubeconfig --name nginx-eks
+                kubectl apply $(ls namespace-*.yml | awk ' { print " -f " $1 } ')
+                sed -i "s/GREEN_WEIGHT/$GREEN_WEIGHT/g" server-grn.conf
+                sed -i "s/BLUE_WEIGHT/$BLUE_WEIGHT/g" server-grn.conf
+                sed -i "s/GRN_ROUTE_TAG/$ROUTE_TAG/g" route-deploy-grn.yml
+                sed -i "s/IMAGE_TAG/$APP_IMAGE_TAG/g" nginx-deploy-grn.yml
+                kubectl create configmap route-grn --from-file server-grn.conf -n route || \
+                kubectl create configmap route-grn --from-file server-grn.conf -o yaml --dry-run=client -n route | kubectl replace -f -
+                kubectl apply $(ls route-*-grn.yml | awk ' { print " -f " $1 } ')
+                kubectl apply $(ls nginx-*-grn.yml | awk ' { print " -f " $1 } ')
+                
+              '''
+            }
+        }
+        stage('Clear WS') {
+            steps {
+             echo 'Cleaning workspace'
+             cleanWs()
+           }
+         }
+    }
+}

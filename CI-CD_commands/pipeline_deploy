@@ -11,6 +11,7 @@ properties([
        filterLength: 1,
        filterable: false,
        name: 'ENV',
+       description: 'Select the fields you want to update', 
        script: [
          $class: 'GroovyScript',
          fallbackScript: [
@@ -30,6 +31,7 @@ properties([
         filterLength: 1,
         filterable: false,
         name: 'ROUTE_BLUE',
+        description: 'Select the weight for load balancer to the routing service for blue namespace', 
         script: [
           $class: 'GroovyScript',
           fallbackScript: [
@@ -49,6 +51,7 @@ properties([
        filterLength: 1,
        filterable: false,
        name: 'ROUTE_GRN',
+       description: 'Select the weight for load balancer to the routing service for green namespace',
        script: [
          $class: 'GroovyScript',
          fallbackScript: [
@@ -68,6 +71,7 @@ properties([
       filterLength: 1,
       filterable: false,
       name: 'BLUE_ROUTE_TAG',
+      description: 'Select the tag of the image for routing pods to blue namespace',
       script: [
         $class: 'GroovyScript',
         script: [
@@ -75,7 +79,7 @@ properties([
             sandbox: false,
             script: '''import groovy.json.JsonSlurper
 
-def ecr_images_json = ['bash', '-c', "aws ecr list-images --repository-name gateway --filter tagStatus=TAGGED --region us-east-1"].execute().text
+def ecr_images_json = ['bash', '-c', "aws ecr list-images --repository-name gateway --filter tagStatus=TAGGED --region ${AWS_REGION}"].execute().text
 def data = new JsonSlurper().parseText(ecr_images_json)
 def ecr_images = [];
 data.imageIds.each {
@@ -94,6 +98,7 @@ return ecr_images.reverse()
       filterLength: 1,
       filterable: false,
       name: 'GRN_ROUTE_TAG',
+      description: 'Select the tag of the image for routing pods to green namespace',
       script: [
         $class: 'GroovyScript',
         script: [
@@ -101,7 +106,7 @@ return ecr_images.reverse()
             sandbox: false,
             script: '''import groovy.json.JsonSlurper
 
-def ecr_images_json = ['bash', '-c', "aws ecr list-images --repository-name gateway --filter tagStatus=TAGGED --region us-east-1"].execute().text
+def ecr_images_json = ['bash', '-c', "aws ecr list-images --repository-name gateway --filter tagStatus=TAGGED --region ${AWS_REGION}"].execute().text
 def data = new JsonSlurper().parseText(ecr_images_json)
 def ecr_images = [];
 data.imageIds.each {
@@ -119,7 +124,28 @@ return ecr_images.reverse()
         choiceType: 'PT_SINGLE_SELECT',
         filterLength: 1,
         filterable: false,
-        name: 'GREEN_WEIGHT',
+        name: 'GREEN_WEIGHT_GREEN',
+        description: 'Select the weight of app in green namespace for green routing pods',
+        script: [
+          $class: 'GroovyScript',
+          fallbackScript: [
+                 classpath: [],
+                 sandbox: false,
+                 script: 'return ["error"]'
+                 ],
+         script: [
+            classpath: [],
+            sandbox: false,
+            script: "return['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']"
+        ]
+     ]
+   ],
+   [$class: 'ChoiceParameter',
+        choiceType: 'PT_SINGLE_SELECT',
+        filterLength: 1,
+        filterable: false,
+        name: 'BLUE_WEIGHT_GREEN',
+        description: 'Select the weight of app in blue namespace for green routing pods',
         script: [
           $class: 'GroovyScript',
           fallbackScript: [
@@ -138,7 +164,28 @@ return ecr_images.reverse()
        choiceType: 'PT_SINGLE_SELECT',
        filterLength: 1,
        filterable: false,
-       name: 'BLUE_WEIGHT',
+       name: 'GREEN_WEIGHT_BLUE',
+       description: 'Select the weight of app in blue namespace for green routing pods',
+       script: [
+         $class: 'GroovyScript',
+         fallbackScript: [
+                classpath: [],
+                sandbox: false,
+                script: 'return ["error"]'
+                ],
+         script: [
+            classpath: [],
+            sandbox: false,
+            script: "return['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']"
+         ]
+      ]
+    ],
+    [$class: 'ChoiceParameter',
+       choiceType: 'PT_SINGLE_SELECT',
+       filterLength: 1,
+       filterable: false,
+       name: 'BLUE_WEIGHT_BLUE',
+       description: 'Select the weight of app in blue namespace for blue routing pods',
        script: [
          $class: 'GroovyScript',
          fallbackScript: [
@@ -158,6 +205,7 @@ return ecr_images.reverse()
       filterLength: 1,
       filterable: false,
       name: 'BLUE_IMAGE_TAG',
+      description: 'Select the image tag of the app in blue namespace',
       script: [
         $class: 'GroovyScript',
         script: [
@@ -165,7 +213,7 @@ return ecr_images.reverse()
             sandbox: false,
             script: '''import groovy.json.JsonSlurper
 
-def ecr_images_json = ['bash', '-c', "aws ecr list-images --repository-name ecr_images_from_jenkins --filter tagStatus=TAGGED --region us-east-1"].execute().text
+def ecr_images_json = ['bash', '-c', "aws ecr list-images --repository-name ecr_images_from_jenkins --filter tagStatus=TAGGED --region ${AWS_REGION}"].execute().text
 def data = new JsonSlurper().parseText(ecr_images_json)
 def ecr_images = [];
 data.imageIds.each {
@@ -184,6 +232,7 @@ return ecr_images.reverse()
       filterLength: 1,
       filterable: false,
       name: 'GRN_IMAGE_TAG',
+      description: 'Select the image tag of the app in green namespace',
       script: [
         $class: 'GroovyScript',
         script: [
@@ -191,7 +240,7 @@ return ecr_images.reverse()
             sandbox: false,
             script: '''import groovy.json.JsonSlurper
 
-def ecr_images_json = ['bash', '-c', "aws ecr list-images --repository-name ecr_images_from_jenkins --filter tagStatus=TAGGED --region us-east-1"].execute().text
+def ecr_images_json = ['bash', '-c', "aws ecr list-images --repository-name ecr_images_from_jenkins --filter tagStatus=TAGGED --region ${AWS_REGION}"].execute().text
 def data = new JsonSlurper().parseText(ecr_images_json)
 def ecr_images = [];
 data.imageIds.each {
@@ -229,56 +278,39 @@ pipeline {
                 sed -i "s/AWS_REGION/${AWS_REGION}/g" *.yml
                 sed -i "s/ROUTE-GRN/$ROUTE_GRN/g" ingress.yml
                 sed -i "s/ROUTE-BLUE/$ROUTE_BLUE/g" ingress.yml
-                if [ $BLUE_WEIGHT == 0 ];
+                if [ $BLUE_WEIGHT_BLUE == 0 ];
                 then
-                   sed -i '/nginx-service-blue/d' server-blue.conf server-grn.conf
+                   sed -i '/nginx-service-blue/d' server-blue.conf
                 fi
-                if [ $GREEN_WEIGHT == 0 ];
+                if [ $GREEN_WEIGHT_BLUE == 0 ];
                 then
-                   sed -i '/nginx-service-green/d' server-blue.conf server-grn.conf
+                   sed -i '/nginx-service-green/d' server-blue.conf
                 fi
-                aws eks update-kubeconfig --name nginx-eks
-                kubectl apply -f route-namespace.yml
-                kubectl apply $(ls nginx-ns-*.yml | awk ' { print " -f " $1 } ')
-                if [ $ENV == 'green' ];
+                if [ $BLUE_WEIGHT_GREEN == 0 ];
                 then
-                    sed -i "s/GREEN_WEIGHT/$GREEN_WEIGHT/g" server-grn.conf
-                    sed -i "s/BLUE_WEIGHT/$BLUE_WEIGHT/g" server-grn.conf
-                    sed -i "s/GRN_ROUTE_TAG/$GRN_ROUTE_TAG/g" route-deploy-grn.yml
-                    sed -i "s/IMAGE_TAG/$GRN_IMAGE_TAG/g" nginx-deploy-grn.yml
-                    kubectl create configmap route-grn --from-file server-grn.conf -n route || \
-                    kubectl create configmap route-grn --from-file server-grn.conf -o yaml --dry-run=client -n route | kubectl replace -f -
-                    kubectl apply $(ls route-*-grn.yml | awk ' { print " -f " $1 } ')
-                    kubectl apply $(ls nginx-*-grn.yml | awk ' { print " -f " $1 } ')
-                    kubectl apply -f ingress.yml
-                elif [ $ENV == 'blue' ];
+                   sed -i '/nginx-service-blue/d' server-grn.conf
+                fi
+                if [ $GREEN_WEIGHT_GREEN == 0 ];
                 then
-                    sed -i "s/BLUE_WEIGHT/$BLUE_WEIGHT/g" server-blue.conf
-                    sed -i "s/GREEN_WEIGHT/$GREEN_WEIGHT/g" server-blue.conf
-                    sed -i "s/BLUE_ROUTE_TAG/$BLUE_ROUTE_TAG/g" route-deploy-blue.yml
-                    sed -i "s/IMAGE_TAG/$BLUE_IMAGE_TAG/g" nginx-deploy-blue.yml
-                    kubectl create configmap route-blue --from-file server-blue.conf -n route || \
-                    kubectl create configmap route-blue --from-file server-blue.conf -o yaml --dry-run=client -n route | kubectl replace -f -
-                    kubectl apply $(ls route-*-blue.yml | awk ' { print " -f " $1 } ')
-                    kubectl apply $(ls nginx-*-blue.yml | awk ' { print " -f " $1 } ')
-                    kubectl apply -f ingress.yml
-                elif [ $ENV == 'blue&green' ];
-                then
-                    sed -i "s/BLUE_WEIGHT/$BLUE_WEIGHT/g" server-blue.conf
-                    sed -i "s/GREEN_WEIGHT/$GREEN_WEIGHT/g" server-blue.conf
-                    sed -i "s/BLUE_ROUTE_TAG/$BLUE_ROUTE_TAG/g" route-deploy-blue.yml
-                    sed -i "s/GREEN_WEIGHT/$GREEN_WEIGHT/g" server-grn.conf
-                    sed -i "s/BLUE_WEIGHT/$BLUE_WEIGHT/g" server-grn.conf
-                    sed -i "s/GRN_ROUTE_TAG/$GRN_ROUTE_TAG/g" route-deploy-grn.yml
-                    sed -i "s/IMAGE_TAG/$BLUE_IMAGE_TAG/g" nginx-deploy-blue.yml
-                    sed -i "s/IMAGE_TAG/$GRN_IMAGE_TAG/g" nginx-deploy-grn.yml
-                    kubectl create configmap route-blue --from-file server-blue.conf -n route || \
-                    kubectl create configmap route-blue --from-file server-blue.conf -o yaml --dry-run=client -n route | kubectl replace -f -
-                    kubectl create configmap route-grn --from-file server-grn.conf -n route || \
-                    kubectl create configmap route-grn --from-file server-grn.conf -o yaml --dry-run=client -n route | kubectl replace -f -
-                    kubectl apply $(ls route-*.yml | awk ' { print " -f " $1 } ')
-                    kubectl apply $(ls nginx-*.yml | awk ' { print " -f " $1 } ')
-                    kubectl apply -f ingress.yml
+                   sed -i '/nginx-service-green/d' server-grn.conf
+                fi
+                aws eks update-kubeconfig --name ${CLUSTER_NAME}
+                kubectl apply $(ls namespace-*.yml | awk ' { print " -f " $1 } ')
+                sed -i "s/BLUE_WEIGHT/$BLUE_WEIGHT_BLUE/g" server-blue.conf
+                sed -i "s/GREEN_WEIGHT/$GREEN_WEIGHT_BLUE/g" server-blue.conf
+                sed -i "s/BLUE_ROUTE_TAG/$BLUE_ROUTE_TAG/g" route-deploy-blue.yml
+                sed -i "s/GREEN_WEIGHT/$GREEN_WEIGHT_GREEN/g" server-grn.conf
+                sed -i "s/BLUE_WEIGHT/$BLUE_WEIGHT_GREEN/g" server-grn.conf
+                sed -i "s/GRN_ROUTE_TAG/$GRN_ROUTE_TAG/g" route-deploy-grn.yml
+                sed -i "s/IMAGE_TAG/$BLUE_IMAGE_TAG/g" nginx-deploy-blue.yml
+                sed -i "s/IMAGE_TAG/$GRN_IMAGE_TAG/g" nginx-deploy-grn.yml
+                kubectl create configmap route-blue --from-file server-blue.conf -n route || \
+                kubectl create configmap route-blue --from-file server-blue.conf -o yaml --dry-run=client -n route | kubectl replace -f -
+                kubectl create configmap route-grn --from-file server-grn.conf -n route || \
+                kubectl create configmap route-grn --from-file server-grn.conf -o yaml --dry-run=client -n route | kubectl replace -f -
+                kubectl apply $(ls route-*.yml | awk ' { print " -f " $1 } ')
+                kubectl apply $(ls nginx-*.yml | awk ' { print " -f " $1 } ')
+                kubectl apply -f ingress.yml
                 fi
               '''
             }
