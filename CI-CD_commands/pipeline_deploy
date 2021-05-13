@@ -270,7 +270,7 @@ pipeline {
                 then
                    sed -i '/nginx-service-green/d' configmap-grn/templates/configmap-grn.yml
                 fi
-                aws eks update-kubeconfig --name ${CLUSTER_NAME}
+                aws eks update-kubeconfig --name ${CLUSTER_NAME} && chmod 640 /home/jenkins/.kube/config
                 helm upgrade --install namespace-nginx-blue ./namespace-nginx-blue
                 helm upgrade --install namespace-nginx-grn ./namespace-nginx-grn
                 helm upgrade --install namespace-route ./namespace-route
