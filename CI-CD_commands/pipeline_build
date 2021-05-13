@@ -68,7 +68,7 @@ pipeline {
                 ${ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/ecr_images_from_jenkins:latest
                 sudo docker push ${ACCOUNT_ID}.dkr.ecr.us-east-1.amazonaws.com/ecr_images_from_jenkins:latest
               '''
-              build job: 'Deploy_Green',
+              build job: 'Deploy/Deploy_Green',
                parameters: [
                 string(name: 'ROUTE_TAG', value: "latest"),
                 string(name: 'GREEN_WEIGHT', value: "100"),
