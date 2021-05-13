@@ -120,26 +120,22 @@ pipeline {
         stage('Modify yml & apply') {
             steps {
               sh '''#!/bin/bash
-                sed -i "s/ACCOUNT_ID/${ACCOUNT_ID}/g" *.yml
-                sed -i "s/AWS_REGION/${AWS_REGION}/g" *.yml
                 if [ $BLUE_WEIGHT == 0 ];
                 then
-                   sed -i '/nginx-service-blue/d' server-blue.conf
+                   sed -i '/nginx-service-blue/d' configmap-blue/templates/configmap-blue.yml
                 fi
                 if [ $GREEN_WEIGHT == 0 ];
                 then
-                   sed -i '/nginx-service-green/d' server-blue.conf
+                   sed -i '/nginx-service-green/d' configmap-blue/templates/configmap-blue.yml
                 fi
                 aws eks update-kubeconfig --name ${CLUSTER_NAME}
-                kubectl apply $(ls namespace-*.yml | awk ' { print " -f " $1 } ')
-                sed -i "s/BLUE_WEIGHT/$BLUE_WEIGHT/g" server-blue.conf
-                sed -i "s/GREEN_WEIGHT/$GREEN_WEIGHT/g" server-blue.conf
-                sed -i "s/BLUE_ROUTE_TAG/$ROUTE_TAG/g" route-deploy-blue.yml
-                sed -i "s/IMAGE_TAG/$APP_IMAGE_TAG/g" nginx-deploy-blue.yml
-                kubectl create configmap route-blue --from-file server-blue.conf -n route || \
-                kubectl create configmap route-blue --from-file server-blue.conf -o yaml --dry-run=client -n route | kubectl replace -f -
-                kubectl apply $(ls route-*-blue.yml | awk ' { print " -f " $1 } ')
-                kubectl apply $(ls nginx-*-blue.yml | awk ' { print " -f " $1 } ')
+                helm upgrade --install namespace-nginx-blue ./namespace-nginx-blue
+                helm upgrade --install namespace-nginx-grn ./namespace-nginx-grn
+                helm upgrade --install configmap-blue ./configmap-blue --set BLUE_WEIGHT=$BLUE_WEIGHT --set GREEN_WEIGHT=$GREEN_WEIGHT
+                helm upgrade --install route-deploy-blue ./route-deploy-blue --set AWS_REGION=${AWS_REGION} --set ACCOUNT_ID=${ACCOUNT_ID} --set BLUE_ROUTE_TAG=$ROUTE_TAG
+                helm upgrade --install route-service-blue ./route-service-blue
+                helm upgrade --install nginx-deploy-blue ./nginx-deploy-blue --set ACCOUNT_ID=${ACCOUNT_ID}  --set AWS_REGION=${AWS_REGION} --set IMAGE_TAG=$APP_IMAGE_TAG
+                helm upgrade --install nginx-service-blue ./nginx-service-blue
               '''
             }
         }

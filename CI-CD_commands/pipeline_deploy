@@ -124,7 +124,7 @@ return ecr_images.reverse()
         choiceType: 'PT_SINGLE_SELECT',
         filterLength: 1,
         filterable: false,
-        name: 'GREEN_WEIGHT_GREEN',
+        name: 'GREEN_ROUTE_GREEN_WEIGHT',
         description: 'Select the weight of app in green namespace for green routing pods',
         script: [
           $class: 'GroovyScript',
@@ -144,8 +144,8 @@ return ecr_images.reverse()
         choiceType: 'PT_SINGLE_SELECT',
         filterLength: 1,
         filterable: false,
-        name: 'BLUE_WEIGHT_GREEN',
-        description: 'Select the weight of app in blue namespace for green routing pods',
+        name: 'BLUE_ROUTE_GREEN_WEIGHT',
+        description: 'Select the weight of app in green namespace for blue routing pods',
         script: [
           $class: 'GroovyScript',
           fallbackScript: [
@@ -164,7 +164,7 @@ return ecr_images.reverse()
        choiceType: 'PT_SINGLE_SELECT',
        filterLength: 1,
        filterable: false,
-       name: 'GREEN_WEIGHT_BLUE',
+       name: 'GREEN_ROUTE_BLUE_WEIGHT',
        description: 'Select the weight of app in blue namespace for green routing pods',
        script: [
          $class: 'GroovyScript',
@@ -184,7 +184,7 @@ return ecr_images.reverse()
        choiceType: 'PT_SINGLE_SELECT',
        filterLength: 1,
        filterable: false,
-       name: 'BLUE_WEIGHT_BLUE',
+       name: 'BLUE_ROUTE_BLUE_WEIGHT',
        description: 'Select the weight of app in blue namespace for blue routing pods',
        script: [
          $class: 'GroovyScript',
@@ -274,44 +274,37 @@ pipeline {
         stage('Modify yml & apply') {
             steps {
               sh '''#!/bin/bash
-                sed -i "s/ACCOUNT_ID/${ACCOUNT_ID}/g" *.yml
-                sed -i "s/AWS_REGION/${AWS_REGION}/g" *.yml
-                sed -i "s/ROUTE-GRN/$ROUTE_GRN/g" ingress.yml
-                sed -i "s/ROUTE-BLUE/$ROUTE_BLUE/g" ingress.yml
-                if [ $BLUE_WEIGHT_BLUE == 0 ];
+                if [ $BLUE_ROUTE_BLUE_WEIGHT == 0 ];
                 then
-                   sed -i '/nginx-service-blue/d' server-blue.conf
+                   sed -i '/nginx-service-blue/d' configmap-blue/templates/configmap-blue.yml
                 fi
-                if [ $GREEN_WEIGHT_BLUE == 0 ];
+                if [ $GREEN_ROUTE_BLUE_WEIGHT == 0 ];
                 then
-                   sed -i '/nginx-service-green/d' server-blue.conf
+                   sed -i '/nginx-service-green/d' configmap-grn/templates/configmap-grn.yml
                 fi
-                if [ $BLUE_WEIGHT_GREEN == 0 ];
+                if [ $BLUE_ROUTE_GREEN_WEIGHT == 0 ];
                 then
-                   sed -i '/nginx-service-blue/d' server-grn.conf
+                   sed -i '/nginx-service-blue/d' configmap-blue/templates/configmap-blue.yml
                 fi
-                if [ $GREEN_WEIGHT_GREEN == 0 ];
+                if [ $GREEN_ROUTE_GREEN_WEIGHT == 0 ];
                 then
-                   sed -i '/nginx-service-green/d' server-grn.conf
+                   sed -i '/nginx-service-green/d' configmap-grn/templates/configmap-grn.yml
                 fi
                 aws eks update-kubeconfig --name ${CLUSTER_NAME}
-                kubectl apply $(ls namespace-*.yml | awk ' { print " -f " $1 } ')
-                sed -i "s/BLUE_WEIGHT/$BLUE_WEIGHT_BLUE/g" server-blue.conf
-                sed -i "s/GREEN_WEIGHT/$GREEN_WEIGHT_BLUE/g" server-blue.conf
-                sed -i "s/BLUE_ROUTE_TAG/$BLUE_ROUTE_TAG/g" route-deploy-blue.yml
-                sed -i "s/GREEN_WEIGHT/$GREEN_WEIGHT_GREEN/g" server-grn.conf
-                sed -i "s/BLUE_WEIGHT/$BLUE_WEIGHT_GREEN/g" server-grn.conf
-                sed -i "s/GRN_ROUTE_TAG/$GRN_ROUTE_TAG/g" route-deploy-grn.yml
-                sed -i "s/IMAGE_TAG/$BLUE_IMAGE_TAG/g" nginx-deploy-blue.yml
-                sed -i "s/IMAGE_TAG/$GRN_IMAGE_TAG/g" nginx-deploy-grn.yml
-                kubectl create configmap route-blue --from-file server-blue.conf -n route || \
-                kubectl create configmap route-blue --from-file server-blue.conf -o yaml --dry-run=client -n route | kubectl replace -f -
-                kubectl create configmap route-grn --from-file server-grn.conf -n route || \
-                kubectl create configmap route-grn --from-file server-grn.conf -o yaml --dry-run=client -n route | kubectl replace -f -
-                kubectl apply $(ls route-*.yml | awk ' { print " -f " $1 } ')
-                kubectl apply $(ls nginx-*.yml | awk ' { print " -f " $1 } ')
-                kubectl apply -f ingress.yml
-                fi
+                helm upgrade --install namespace-nginx-blue ./namespace-nginx-blue
+                helm upgrade --install namespace-nginx-grn ./namespace-nginx-grn
+                helm upgrade --install namespace-route ./namespace-route
+                helm upgrade --install configmap-blue ./configmap-blue --set BLUE_WEIGHT=$BLUE_ROUTE_BLUE_WEIGHT --set GREEN_WEIGHT=$BLUE_ROUTE_GREEN_WEIGHT
+                helm upgrade --install configmap-grn ./configmap-grn --set BLUE_WEIGHT=$GREEN_ROUTE_BLUE_WEIGHT --set GREEN_WEIGHT=$GREEN_ROUTE_GREEN_WEIGHT
+                helm upgrade --install route-deploy-blue ./route-deploy-blue --set AWS_REGION=${AWS_REGION} --set ACCOUNT_ID=${ACCOUNT_ID} --set BLUE_ROUTE_TAG=$BLUE_ROUTE_TAG
+                helm upgrade --install route-deploy-grn ./route-deploy-grn --set AWS_REGION=${AWS_REGION} --set ACCOUNT_ID=${ACCOUNT_ID} --set GRN_ROUTE_TAG=$GRN_ROUTE_TAG
+                helm upgrade --install route-service-blue ./route-service-blue
+                helm upgrade --install route-service-grn ./route-service-grn
+                helm upgrade --install nginx-deploy-blue ./nginx-deploy-blue --set ACCOUNT_ID=${ACCOUNT_ID}  --set AWS_REGION=${AWS_REGION} --set IMAGE_TAG=$BLUE_IMAGE_TAG
+                helm upgrade --install nginx-deploy-grn ./nginx-deploy-grn --set ACCOUNT_ID=${ACCOUNT_ID}  --set AWS_REGION=${AWS_REGION} --set IMAGE_TAG=$GRN_IMAGE_TAG
+                helm upgrade --install nginx-service-blue ./nginx-service-blue
+                helm upgrade --install nginx-service-grn ./nginx-service-grn
+                helm upgrade --install ingress ./ingress --set ROUTE-GRN=$ROUTE_GRN --set ROUTE-BLUE=$ROUTE_BLUE --set Owner=Maxim_Manovitskiy
               '''
             }
         }

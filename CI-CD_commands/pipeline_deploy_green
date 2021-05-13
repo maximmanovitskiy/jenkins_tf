@@ -120,27 +120,22 @@ pipeline {
         stage('Modify yml & apply') {
             steps {
               sh '''#!/bin/bash
-                sed -i "s/ACCOUNT_ID/${ACCOUNT_ID}/g" *.yml
-                sed -i "s/AWS_REGION/${AWS_REGION}/g" *.yml
                 if [ $BLUE_WEIGHT == 0 ];
                 then
-                   sed -i '/nginx-service-blue/d' server-grn.conf
+                   sed -i '/nginx-service-blue/d' configmap-grn/templates/configmap-grn.yml
                 fi
                 if [ $GREEN_WEIGHT == 0 ];
                 then
-                   sed -i '/nginx-service-green/d' server-grn.conf
+                   sed -i '/nginx-service-green/d' configmap-grn/templates/configmap-grn.yml
                 fi
-                aws eks update-kubeconfig --name nginx-eks
-                kubectl apply $(ls namespace-*.yml | awk ' { print " -f " $1 } ')
-                sed -i "s/GREEN_WEIGHT/$GREEN_WEIGHT/g" server-grn.conf
-                sed -i "s/BLUE_WEIGHT/$BLUE_WEIGHT/g" server-grn.conf
-                sed -i "s/GRN_ROUTE_TAG/$ROUTE_TAG/g" route-deploy-grn.yml
-                sed -i "s/IMAGE_TAG/$APP_IMAGE_TAG/g" nginx-deploy-grn.yml
-                kubectl create configmap route-grn --from-file server-grn.conf -n route || \
-                kubectl create configmap route-grn --from-file server-grn.conf -o yaml --dry-run=client -n route | kubectl replace -f -
-                kubectl apply $(ls route-*-grn.yml | awk ' { print " -f " $1 } ')
-                kubectl apply $(ls nginx-*-grn.yml | awk ' { print " -f " $1 } ')
-                
+                aws eks update-kubeconfig --name ${CLUSTER_NAME}
+                helm upgrade --install namespace-nginx-blue ./namespace-nginx-blue
+                helm upgrade --install namespace-nginx-grn ./namespace-nginx-grn
+                helm upgrade --install configmap-grn ./configmap-grn --set BLUE_WEIGHT=$BLUE_WEIGHT --set GREEN_WEIGHT=$GREEN_WEIGHT
+                helm upgrade --install route-deploy-grn ./route-deploy-grn --set AWS_REGION=${AWS_REGION} --set ACCOUNT_ID=${ACCOUNT_ID} --set GRN_ROUTE_TAG=$ROUTE_TAG
+                helm upgrade --install route-service-grn ./route-service-grn
+                helm upgrade --install nginx-deploy-grn ./nginx-deploy-grn --set ACCOUNT_ID=${ACCOUNT_ID}  --set AWS_REGION=${AWS_REGION} --set IMAGE_TAG=$APP_IMAGE_TAG
+                helm upgrade --install nginx-service-grn ./nginx-service-grn
               '''
             }
         }
