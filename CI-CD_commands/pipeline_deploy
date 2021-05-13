@@ -284,7 +284,7 @@ pipeline {
                 helm upgrade --install nginx-deploy-grn ./nginx-deploy-grn --set ACCOUNT_ID=${ACCOUNT_ID}  --set AWS_REGION=${AWS_REGION} --set IMAGE_TAG=$GRN_IMAGE_TAG
                 helm upgrade --install nginx-service-blue ./nginx-service-blue
                 helm upgrade --install nginx-service-grn ./nginx-service-grn
-                helm upgrade --install ingress ./ingress --set ROUTE-GRN=$ROUTE_GRN --set ROUTE-BLUE=$ROUTE_BLUE --set Owner=Maxim_Manovitskiy
+                helm upgrade --install ingress ./ingress --set ROUTE_GRN=$ROUTE_GRN --set ROUTE_BLUE=$ROUTE_BLUE --set Owner=Maxim_Manovitskiy
               '''
             }
         }
