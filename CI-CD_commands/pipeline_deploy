@@ -185,7 +185,7 @@ return ecr_images.reverse()
        filterLength: 1,
        filterable: false,
        name: 'BLUE_PDB_MIN_AV',
-       description: 'Select the weight of minimum number of available nginx green pods (in %)',
+       description: 'Select the weight of minimum number of available nginx blue pods (in %)',
        script: [
          $class: 'GroovyScript',
          fallbackScript: [
