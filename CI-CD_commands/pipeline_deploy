@@ -379,7 +379,7 @@ return ecr_images.reverse()
        filterLength: 1,
        filterable: false,
        name: 'GRN_LIMIT_CPU',
-       description: 'Select the CPU limit for nginx blue pods',
+       description: 'Select the CPU limit for nginx green pods',
        script: [
          $class: 'GroovyScript',
          fallbackScript: [
@@ -399,7 +399,7 @@ return ecr_images.reverse()
        filterLength: 1,
        filterable: false,
        name: 'GRN_REQUEST_CPU',
-       description: 'Select the CPU limit for nginx blue pods',
+       description: 'Select the CPU limit for nginx green pods',
        script: [
          $class: 'GroovyScript',
          fallbackScript: [
