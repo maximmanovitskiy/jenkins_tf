@@ -121,26 +121,6 @@ return ecr_images.reverse()
      ]
    ],
    [$class: 'ChoiceParameter',
-        choiceType: 'PT_SINGLE_SELECT',
-        filterLength: 1,
-        filterable: false,
-        name: 'BLUE_ROUTE_GREEN_WEIGHT',
-        description: 'Select the weight of app in green namespace for blue routing pods',
-        script: [
-          $class: 'GroovyScript',
-          fallbackScript: [
-                 classpath: [],
-                 sandbox: false,
-                 script: 'return ["error"]'
-                 ],
-         script: [
-            classpath: [],
-            sandbox: false,
-            script: "return['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']"
-        ]
-     ]
-   ],
-   [$class: 'ChoiceParameter',
        choiceType: 'PT_SINGLE_SELECT',
        filterLength: 1,
        filterable: false,
@@ -181,6 +161,66 @@ return ecr_images.reverse()
       ]
     ],
     [$class: 'ChoiceParameter',
+        choiceType: 'PT_SINGLE_SELECT',
+        filterLength: 1,
+        filterable: false,
+        name: 'BLUE_ROUTE_GREEN_WEIGHT',
+        description: 'Select the weight of app in green namespace for blue routing pods',
+        script: [
+          $class: 'GroovyScript',
+          fallbackScript: [
+                 classpath: [],
+                 sandbox: false,
+                 script: 'return ["error"]'
+                 ],
+         script: [
+            classpath: [],
+            sandbox: false,
+            script: "return['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']"
+        ]
+     ]
+   ],
+    [$class: 'ChoiceParameter',
+       choiceType: 'PT_SINGLE_SELECT',
+       filterLength: 1,
+       filterable: false,
+       name: 'BLUE_PDB_MIN_AV',
+       description: 'Select the weight of minimum number of available nginx green pods (in %)',
+       script: [
+         $class: 'GroovyScript',
+         fallbackScript: [
+                classpath: [],
+                sandbox: false,
+                script: 'return ["error"]'
+                ],
+         script: [
+            classpath: [],
+            sandbox: false,
+            script: "return['0', '10', '20', '30':selected, '40', '50', '60', '70', '80', '90', '100']"
+         ]
+      ]
+    ],
+    [$class: 'ChoiceParameter',
+       choiceType: 'PT_SINGLE_SELECT',
+       filterLength: 1,
+       filterable: false,
+       name: 'GRN_PDB_MIN_AV',
+       description: 'Select the weight of minimum number of available nginx green pods (in %)',
+       script: [
+         $class: 'GroovyScript',
+         fallbackScript: [
+                classpath: [],
+                sandbox: false,
+                script: 'return ["error"]'
+                ],
+         script: [
+            classpath: [],
+            sandbox: false,
+            script: "return['0', '10', '20', '30':selected, '40', '50', '60', '70', '80', '90', '100']"
+         ]
+      ]
+    ],
+    [$class: 'ChoiceParameter',
       choiceType: 'PT_SINGLE_SELECT',
       filterLength: 1,
       filterable: false,
@@ -208,6 +248,106 @@ return ecr_images.reverse()
       ]
     ],
     [$class: 'ChoiceParameter',
+       choiceType: 'PT_SINGLE_SELECT',
+       filterLength: 1,
+       filterable: false,
+       name: 'BLUE_LIMIT_CPU',
+       description: 'Select the CPU limit for nginx blue pods (in MB)',
+       script: [
+         $class: 'GroovyScript',
+         fallbackScript: [
+                classpath: [],
+                sandbox: false,
+                script: 'return ["error"]'
+                ],
+         script: [
+            classpath: [],
+            sandbox: false,
+            script: "return['0.25', '0.5', '0.75', '1']"
+         ]
+      ]
+    ],
+    [$class: 'ChoiceParameter',
+       choiceType: 'PT_SINGLE_SELECT',
+       filterLength: 1,
+       filterable: false,
+       name: 'BLUE_REQUEST_CPU',
+       description: 'Select the CPU limit for nginx blue pods',
+       script: [
+         $class: 'GroovyScript',
+         fallbackScript: [
+                classpath: [],
+                sandbox: false,
+                script: 'return ["error"]'
+                ],
+         script: [
+            classpath: [],
+            sandbox: false,
+            script: "return['0.25', '0.5', '0.75', '1']"
+         ]
+      ]
+    ],
+    [$class: 'ChoiceParameter',
+       choiceType: 'PT_SINGLE_SELECT',
+       filterLength: 1,
+       filterable: false,
+       name: 'BLUE_CPU_PERCENT',
+       description: 'Select the CPU % for nginx HPA in blue namespace',
+       script: [
+         $class: 'GroovyScript',
+         fallbackScript: [
+                classpath: [],
+                sandbox: false,
+                script: 'return ["error"]'
+                ],
+         script: [
+            classpath: [],
+            sandbox: false,
+            script: "return['0', '10', '20', '30', '40', '50':selected, '60', '70', '80', '90', '100']"
+         ]
+      ]
+    ],
+    [$class: 'ChoiceParameter',
+       choiceType: 'PT_SINGLE_SELECT',
+       filterLength: 1,
+       filterable: false,
+       name: 'BLUE_HPA_MIN_COUNT',
+       description: 'Select the minimum number of nginx blue pods for HPA',
+       script: [
+         $class: 'GroovyScript',
+         fallbackScript: [
+                classpath: [],
+                sandbox: false,
+                script: 'return ["error"]'
+                ],
+         script: [
+            classpath: [],
+            sandbox: false,
+            script: "return['1', '2', '3':selected, '4', '5', '6', '7', '8', '9', '10']"
+         ]
+      ]
+    ],
+    [$class: 'ChoiceParameter',
+       choiceType: 'PT_SINGLE_SELECT',
+       filterLength: 1,
+       filterable: false,
+       name: 'BLUE_HPA_MAX_COUNT',
+       description: 'Select the maximum number of nginx blue pods for HPA',
+       script: [
+         $class: 'GroovyScript',
+         fallbackScript: [
+                classpath: [],
+                sandbox: false,
+                script: 'return ["error"]'
+                ],
+         script: [
+            classpath: [],
+            sandbox: false,
+            script: "return['1', '2', '3', '4', '5', '6', '7', '8', '9', '10':selected]"
+         ]
+      ]
+    ],
+    [$class: 'ChoiceParameter',
       choiceType: 'PT_SINGLE_SELECT',
       filterLength: 1,
       filterable: false,
@@ -232,6 +372,106 @@ data.imageIds.each {
 return ecr_images.reverse()
             '''
         ]
+      ]
+    ],
+    [$class: 'ChoiceParameter',
+       choiceType: 'PT_SINGLE_SELECT',
+       filterLength: 1,
+       filterable: false,
+       name: 'GRN_LIMIT_CPU',
+       description: 'Select the CPU limit for nginx blue pods',
+       script: [
+         $class: 'GroovyScript',
+         fallbackScript: [
+                classpath: [],
+                sandbox: false,
+                script: 'return ["error"]'
+                ],
+         script: [
+            classpath: [],
+            sandbox: false,
+            script: "return['0.25', '0.5':selected, '0.75', '1']"
+         ]
+      ]
+    ],
+    [$class: 'ChoiceParameter',
+       choiceType: 'PT_SINGLE_SELECT',
+       filterLength: 1,
+       filterable: false,
+       name: 'GRN_REQUEST_CPU',
+       description: 'Select the CPU limit for nginx blue pods',
+       script: [
+         $class: 'GroovyScript',
+         fallbackScript: [
+                classpath: [],
+                sandbox: false,
+                script: 'return ["error"]'
+                ],
+         script: [
+            classpath: [],
+            sandbox: false,
+            script: "return['0.25':selected, '0.5', '0.75', '1']"
+         ]
+      ]
+    ],
+    [$class: 'ChoiceParameter',
+       choiceType: 'PT_SINGLE_SELECT',
+       filterLength: 1,
+       filterable: false,
+       name: 'GRN_CPU_PERCENT',
+       description: 'Select the CPU % for nginx HPA in green namespace',
+       script: [
+         $class: 'GroovyScript',
+         fallbackScript: [
+                classpath: [],
+                sandbox: false,
+                script: 'return ["error"]'
+                ],
+         script: [
+            classpath: [],
+            sandbox: false,
+            script: "return['0', '10', '20', '30', '40', '50':selected, '60', '70', '80', '90', '100']"
+         ]
+      ]
+    ],
+    [$class: 'ChoiceParameter',
+       choiceType: 'PT_SINGLE_SELECT',
+       filterLength: 1,
+       filterable: false,
+       name: 'GRN_HPA_MIN_COUNT',
+       description: 'Select the minimum number of nginx green pods for HPA',
+       script: [
+         $class: 'GroovyScript',
+         fallbackScript: [
+                classpath: [],
+                sandbox: false,
+                script: 'return ["error"]'
+                ],
+         script: [
+            classpath: [],
+            sandbox: false,
+            script: "return['1', '2', '3':selected, '4', '5', '6', '7', '8', '9', '10']"
+         ]
+      ]
+    ],
+    [$class: 'ChoiceParameter',
+       choiceType: 'PT_SINGLE_SELECT',
+       filterLength: 1,
+       filterable: false,
+       name: 'GRN_HPA_MAX_COUNT',
+       description: 'Select the maximum number of nginx green pods for HPA',
+       script: [
+         $class: 'GroovyScript',
+         fallbackScript: [
+                classpath: [],
+                sandbox: false,
+                script: 'return ["error"]'
+                ],
+         script: [
+            classpath: [],
+            sandbox: false,
+            script: "return['1', '2', '3', '4', '5', '6', '7', '8', '9', '10':selected]"
+         ]
       ]
     ]
  ])
@@ -280,8 +520,13 @@ pipeline {
                 helm upgrade --install route-deploy-grn ./route-deploy-grn --set AWS_REGION=${AWS_REGION} --set ACCOUNT_ID=${ACCOUNT_ID} --set GRN_ROUTE_TAG=$GRN_ROUTE_TAG
                 helm upgrade --install route-service-blue ./route-service-blue
                 helm upgrade --install route-service-grn ./route-service-grn
-                helm upgrade --install nginx-deploy-blue ./nginx-deploy-blue --set ACCOUNT_ID=${ACCOUNT_ID}  --set AWS_REGION=${AWS_REGION} --set IMAGE_TAG=$BLUE_IMAGE_TAG
-                helm upgrade --install nginx-deploy-grn ./nginx-deploy-grn --set ACCOUNT_ID=${ACCOUNT_ID}  --set AWS_REGION=${AWS_REGION} --set IMAGE_TAG=$GRN_IMAGE_TAG
+                helm upgrade --install nginx-deploy-blue ./nginx-deploy-blue --set ACCOUNT_ID=${ACCOUNT_ID}  --set AWS_REGION=${AWS_REGION} --set IMAGE_TAG=$BLUE_IMAGE_TAG --set LIMIT_CPU=$BLUE_LIMIT_CPU --set REQUEST_CPU=$BLUE_REQUEST_CPU
+                helm upgrade --install nginx-deploy-grn ./nginx-deploy-grn --set ACCOUNT_ID=${ACCOUNT_ID}  --set AWS_REGION=${AWS_REGION} --set IMAGE_TAG=$GRN_IMAGE_TAG --set LIMIT_CPU=$GRN_LIMIT_CPU --set REQUEST_CPU=$GRN_REQUEST_CPU
+                helm upgrade --install nginx-pdb-blue ./nginx-pdb-blue --set PDB_MIN_AV=$BLUE_PDB_MIN_AV
+                helm upgrade --install nginx-pdb-grn ./nginx-pdb-grn --set PDB_MIN_AV=$GRN_PDB_MIN_AV
+                kubectl apply -f metrics-server.yml
+                helm upgrade --install nginx-hpa-blue ./nginx-hpa-blue --set CPU_PERCENT=$BLUE_CPU_PERCENT --set MIN_COUNT=$BLUE_HPA_MIN_COUNT --set MAX_COUNT=$BLUE_HPA_MAX_COUNT
+                helm upgrade --install nginx-hpa-grn ./nginx-hpa-grn --set CPU_PERCENT=$GRN_CPU_PERCENT --set MIN_COUNT=$GRN_HPA_MIN_COUNT --set MAX_COUNT=$GRN_HPA_MAX_COUNT
                 helm upgrade --install nginx-service-blue ./nginx-service-blue
                 helm upgrade --install nginx-service-grn ./nginx-service-grn
                 helm upgrade --install ingress ./ingress --set ROUTE_GRN=$ROUTE_GRN --set ROUTE_BLUE=$ROUTE_BLUE --set Owner=Maxim_Manovitskiy
