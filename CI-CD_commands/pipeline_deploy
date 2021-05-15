@@ -500,11 +500,11 @@ pipeline {
                 fi
                 if [ $GREEN_ROUTE_BLUE_WEIGHT == 0 ];
                 then
-                   sed -i '/nginx-service-green/d' configmap-grn/templates/configmap-grn.yml
+                   sed -i '/nginx-service-blue/d' configmap-grn/templates/configmap-grn.yml
                 fi
                 if [ $BLUE_ROUTE_GREEN_WEIGHT == 0 ];
                 then
-                   sed -i '/nginx-service-blue/d' configmap-blue/templates/configmap-blue.yml
+                   sed -i '/nginx-service-green/d' configmap-blue/templates/configmap-blue.yml
                 fi
                 if [ $GREEN_ROUTE_GREEN_WEIGHT == 0 ];
                 then
