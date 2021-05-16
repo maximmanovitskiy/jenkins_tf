@@ -11,7 +11,7 @@ properties([
       filterLength: 1,
       filterable: false,
       name: 'ROUTE_TAG',
-      description: 'Select the tag of the image for routing pods to 'green' namespace',
+      description: 'Select the tag of the image for routing pods to blue namespace',
       script: [
         $class: 'GroovyScript',
         script: [
@@ -78,7 +78,7 @@ return ecr_images.reverse()
        filterLength: 1,
        filterable: false,
        name: 'PDB_MIN_AV',
-       description: 'Select the weight of minimum number of available nginx green pods (in %)',
+       description: 'Select the weight of minimum number of available nginx blue pods (in %)',
        script: [
          $class: 'GroovyScript',
          fallbackScript: [
