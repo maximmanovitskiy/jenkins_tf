@@ -514,10 +514,11 @@ pipeline {
                 helm upgrade --install namespace-nginx-blue ./namespace-nginx-blue
                 helm upgrade --install namespace-nginx-grn ./namespace-nginx-grn
                 helm upgrade --install namespace-route ./namespace-route
-                helm upgrade --install configmap-blue ./configmap-blue --set BLUE_WEIGHT=$BLUE_ROUTE_BLUE_WEIGHT --set GREEN_WEIGHT=$BLUE_ROUTE_GREEN_WEIGHT
-                helm upgrade --install configmap-grn ./configmap-grn --set BLUE_WEIGHT=$GREEN_ROUTE_BLUE_WEIGHT --set GREEN_WEIGHT=$GREEN_ROUTE_GREEN_WEIGHT
                 helm upgrade --install route-deploy-blue ./route-deploy-blue --set AWS_REGION=${AWS_REGION} --set ACCOUNT_ID=${ACCOUNT_ID} --set BLUE_ROUTE_TAG=$BLUE_ROUTE_TAG
                 helm upgrade --install route-deploy-grn ./route-deploy-grn --set AWS_REGION=${AWS_REGION} --set ACCOUNT_ID=${ACCOUNT_ID} --set GRN_ROUTE_TAG=$GRN_ROUTE_TAG
+                helm upgrade --install configmap-blue ./configmap-blue --set BLUE_WEIGHT=$BLUE_ROUTE_BLUE_WEIGHT --set GREEN_WEIGHT=$BLUE_ROUTE_GREEN_WEIGHT
+                helm upgrade --install configmap-grn ./configmap-grn --set BLUE_WEIGHT=$GREEN_ROUTE_BLUE_WEIGHT --set GREEN_WEIGHT=$GREEN_ROUTE_GREEN_WEIGHT
+
                 helm upgrade --install route-service-blue ./route-service-blue
                 helm upgrade --install route-service-grn ./route-service-grn
                 helm upgrade --install nginx-deploy-blue ./nginx-deploy-blue --set ACCOUNT_ID=${ACCOUNT_ID}  --set AWS_REGION=${AWS_REGION} --set IMAGE_TAG=$BLUE_IMAGE_TAG --set LIMIT_CPU=$BLUE_LIMIT_CPU --set REQUEST_CPU=$BLUE_REQUEST_CPU
