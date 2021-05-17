@@ -11,7 +11,7 @@ properties([
       filterLength: 1,
       filterable: false,
       name: 'ROUTE_TAG',
-      description: 'Select the tag of the image for routing pods to blue namespace',
+      description: 'Select the tag of the image for routing pods to green namespace',
       script: [
         $class: 'GroovyScript',
         script: [
