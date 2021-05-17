@@ -7,7 +7,7 @@ pipeline {
             steps {
               checkout([
                 $class: 'GitSCM',
-                branches: [[name: 'main']],
+                branches: [[name: 'test']],
                 userRemoteConfigs: [[
                 url: 'git@github.com:gitmaks/gateway.git',
                 credentialsId: 'docker_git',
