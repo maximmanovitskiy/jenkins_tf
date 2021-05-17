@@ -10,3 +10,6 @@ output "efs_dns_name" {
 output "ecr_hostname" {
   value = aws_ecr_repository.ecr.repository_url
 }
+output "ecr_gw_hostname" {
+  value = aws_ecr_repository.ecr-gateway.repository_url
+}

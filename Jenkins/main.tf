@@ -203,6 +203,37 @@ resource "aws_ecr_lifecycle_policy" "ecr_policy" {
   }
 EOF
 }
+resource "aws_ecr_repository" "ecr-gateway" {
+  name                 = "gateway"
+  image_tag_mutability = "MUTABLE"
+  tags = {
+    Name         = "ECR_GW"
+    ResourceName = "ECR"
+    Owner        = var.resource_owner
+  }
+}
+resource "aws_ecr_lifecycle_policy" "ecr_gw_policy" {
+  repository = aws_ecr_repository.ecr-gateway.name
+
+  policy = <<EOF
+  {
+    "rules": [
+      {
+        "rulePriority": 1,
+        "description": "Keep only 10 images",
+        "selection": {
+          "tagStatus": "any",
+          "countType": "imageCountMoreThan",
+          "countNumber": 10
+        },
+        "action": {
+          "type": "expire"
+        }
+      }
+    ]
+  }
+EOF
+}
 data "template_file" "init" {
   template = file("./jenkins.sh")
   vars = {

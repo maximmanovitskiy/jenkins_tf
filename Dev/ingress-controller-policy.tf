@@ -1,5 +1,5 @@
 resource "aws_iam_policy" "ingress-controller-policy" {
-  name        = "Ingress-controller-policy"
+  name        = "AWSLoadBalancerControllerIAMPolicy"
   description = "Worker node policy for ingress-controller"
 
   policy = <<EOF
