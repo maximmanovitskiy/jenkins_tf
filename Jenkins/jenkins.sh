@@ -3,6 +3,8 @@ apt update
 apt install apt-transport-https -y
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | apt-key add -
+curl https://baltocdn.com/helm/signing.asc | apt-key add -
+echo "deb https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
 sh -c 'echo deb https://pkg.jenkins.io/debian-stable binary/ > \
     /etc/apt/sources.list.d/jenkins.list'
 add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
@@ -14,7 +16,7 @@ apt install nfs-common -y
 mkdir /var/lib/jenkins/
 apt install openjdk-11-jdk -y
 apt install docker-ce -y
-sleep 5
+sleep 20
 mount \
     -t nfs4 \
     -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport \
@@ -28,6 +30,7 @@ apt install -y kubectl
 curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
 mv /tmp/eksctl /usr/bin
 sleep 5
+sudo apt-get install helm -y
 cd /home/ubuntu && su ubuntu -c "wget http://localhost:8080/jnlpJars/jenkins-cli.jar"
 su jenkins -c "mkdir -p ~/.aws"
 su jenkins -c "cat <<EOF > /home/jenkins/.aws/config
@@ -38,7 +41,7 @@ sed -i 's/<workspaceDir>.\+ITEM/<workspaceDir>\/var\/lib\/jenkins_workspace\/\$\
 java -jar ./jenkins-cli.jar -s http://localhost:8080 \
 -auth admin:"$(cat /var/lib/jenkins/secrets/initialAdminPassword)" \
 -noKeyAuth install-plugin greenballs github uno-choice workflow-aggregator ec2 \
-generic-webhook-trigger pipeline-githubnotify-step -restart
+generic-webhook-trigger pipeline-githubnotify-step ws-cleanup -restart
 sed -i 's/<globalNodeProperties\/>/<globalNodeProperties>\
  <hudson.slaves.EnvironmentVariablesNodeProperty>\
  <envVars serialization="custom">\

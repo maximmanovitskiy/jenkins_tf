@@ -70,7 +70,10 @@ resource "aws_iam_policy" "jenkins_policy" {
                 "ecr:ListImages",
                 "ecr:PutImage"
          ],
-         "Resource":"arn:aws:ecr:us-east-1:482720962971:repository/ecr_images_from_jenkins"
+         "Resource":[
+           "arn:aws:ecr:us-east-1:482720962971:repository/ecr_images_from_jenkins",
+           "arn:aws:ecr:us-east-1:482720962971:repository/gateway"
+         ]
       },
       {
         "Sid": "RunEC2Agents",
@@ -161,7 +164,10 @@ resource "aws_iam_policy" "jenkins_slave_policy" {
                 "ecr:ListImages",
                 "ecr:PutImage"
          ],
-         "Resource":"arn:aws:ecr:us-east-1:482720962971:repository/ecr_images_from_jenkins"
+         "Resource":[
+           "arn:aws:ecr:us-east-1:482720962971:repository/ecr_images_from_jenkins",
+           "arn:aws:ecr:us-east-1:482720962971:repository/gateway"
+         ]
       }
    ]
 }
